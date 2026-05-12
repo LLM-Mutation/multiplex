@@ -1,0 +1,20 @@
+[project]
+name = "multiplex"
+version = "0.1.0"
+description = "⚠️ A Modular LLM-based Mutation Tool."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "litellm>=1.76.3",
+    "openai>=1.104.2",
+    "pyyaml>=6.0.2",
+    "tree-sitter==0.23.2",
+    "tree-sitter-java==0.23.5",
+]
+
+[dependency-groups]
+dev = [
+    "pylint>=3.3.7",
+    "pytest>=8.4.1",
+    "ruff>=0.11.12",
+]
