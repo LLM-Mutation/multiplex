@@ -1,5 +1,9 @@
 # 🪲 _multiplex_: A Modular LLM-based Mutation Framework
 
+[![Tests](https://github.com/LLM-Mutation/multiplex/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/LLM-Mutation/multiplex/actions/workflows/test.yml)
+[![Ruff](https://github.com/LLM-Mutation/multiplex/actions/workflows/ruff.yml/badge.svg)](https://github.com/LLM-Mutation/multiplex/actions/workflows/ruff.yml)
+
+
 **A tool for prototyping and comparing LLM-based mutation testing approaches.**
 
  *__multiplex__* has a modular design to enable researchers to build, design and
