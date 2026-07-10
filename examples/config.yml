@@ -1,21 +1,38 @@
-# config.yml
+# config.yml — self-contained example.
+# Run from the repo root:  uv run multiplex ./examples/config.yml
+#
+# Requirements for this example:
+#   - Maven (`mvn`) and a JDK on PATH (used by the `mvn` runtool below).
+#   - A running Ollama serving the model named under `llm.model`
+#     (`ollama pull gpt-oss:20b`, or point `llm.model` at any model you have).
 
 project:
-    projectroot: ../project/csv_3_fixed
-    filename: ../project/csv_3_fixed/src/main/java/org/apache/commons/csv/Lexer.java
-    method: readEscape
-    line: 87
-    runtool: d4j
+    projectroot: examples/project/example
+    filename: examples/project/example/src/main/java/com/example/Classifier.java
+    method: classify
+    line: 6
+    runtool: mvn
 
 mutation:
-    approach: stpa
+    approach: basic
 
 llm:
     model: ollama/gpt-oss:20b
     endpoint: http://127.0.0.1:11434
-    token_env_var: # env var name storing token (NOT TOKEN)
+    token_env_var: # env var name storing token (NOT the token itself)
 
 system_prompts:
+    # Only the prompts for the selected `mutation.approach` are required.
+    # `basic` (the approach used above) needs only `basic_generate_mutants`.
+    basic_generate_mutants: |
+        You are a code generator.
+        When given a Java method, re-implement it with a single small behavioral defect (a mutant).
+        Change exactly one thing: an operator, a boundary condition, a constant, or a returned value.
+        Include a concise code comment describing the injected defect.
+        Output the defective Java code only and nothing else.
+
+    # The prompts below let you switch `mutation.approach` to hazop or stpa
+    # without editing anything else.
     hazop_describe_process: |
         When given a Java method, describe the intent of the code in a line-by-line manner, as concisely as possible.
 
@@ -24,12 +41,12 @@ system_prompts:
         Break the explanation into line-numbered steps and return the line-numbered steps.
     hazop_identify_deviations: |
         For each numbered description, output one version of the string where one of the rules has changed.
-        The rule must be changed using one of the "guidewords" from HAZOP. 
+        The rule must be changed using one of the "guidewords" from HAZOP.
         The guidewords and their interpretation is delimited by ###, in the form guideword - interpretation.
         That is, everything before - is the guideword and everything after is the meaning.
-        
+
         ###
-        
+
         No (not, none) - None of the design intent is achieved
         More (more of, higher) - Quantitative increase in a parameter
         Less (less of, lower) - Quantitative decrease in a parameter
@@ -37,15 +54,15 @@ system_prompts:
         Part of - Only some of the design intention is achieved
         Reverse - Logical opposite of the design intent occurs
         Other than (other) - Complete substitution (another activity takes place or an unusual activity occurs or uncommon condition exists)
-        
+
         ###
-        
+
         Please output each new rule, as a csv line, without headings in the format:
         "number, original_rule, guideword (CAPITALIZED), changed_rule"
     hazop_implement_deviations: |
-        You are a code generator. 
+        You are a code generator.
         When given a description, re-implement the method but with the incorrect behavior/defect as described in the description.
-        
+
         Include a concise code comment to describe the implemented defect.
         Output the defective Java code only and nothing else.
     stpa_describe_control_flow: |
@@ -55,7 +72,7 @@ system_prompts:
         Output the control diagram only, and nothing else.
     stpa_identify_ucas: |
         Identify 10 different Unsafe Control Actions (UCAs) within the control diagram described in DOT language, referencing the code, using each of the guidewords delimited by ### below:
-        
+
         ###
         * provides
         * does not provide
@@ -64,14 +81,14 @@ system_prompts:
         * out of order
         * stopped too soon
         * applied for too long
-        
+
         ###
-        
+
         You must describe each UCA in the format: <Variable or Structure><ControlAction><Guideword><Context>
-        
+
         An example of this is:
         variable x calculated out of order when sorting has not occurred.
-        
+
         Output the numbered list of UCAs with no empty lines, and nothing else.
     stpa_implement_ucas: |
         You are a code generator.
@@ -80,12 +97,6 @@ system_prompts:
         Include a concise code comment to describe the implemented defect.
         Output the defective Java code only and nothing else.
 
-    # Only the prompts for the selected `mutation.approach` are required. The keys
-    # below are for the other approaches; uncomment and fill them to switch approach.
-    # basic_generate_mutants: |
-    #     You are a code generator. Re-implement the given Java method with a subtle defect.
-    #     Output the defective Java code only and nothing else.
-    # llmorpheus_system: |
-    #     You are a mutation testing tool that generates subtle buggy variants of code.
-    # mutahunter_generate_mutants: |
-    #     NOTE: USER MUST COLLECT MUTAHUNTER PROMPTS THEMSELVES DUE TO LICENSING
+    # The mutahunter and llmorpheus approaches need their own prompts to run:
+    #   - mutahunter: prompts must be supplied by you (licensing) — see README.
+    #   - llmorpheus: provide `llmorpheus_system` with your mutation instructions.
