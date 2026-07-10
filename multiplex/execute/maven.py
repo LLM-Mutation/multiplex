@@ -16,18 +16,20 @@ def _execute(project_root):
     Returns True if the build passes (all tests green) — i.e. the mutant is not
     detected and survives — and False if the build/tests fail (mutant killed).
     """
-    command = f"mvn -f {project_root} clean test"
+    # argv list (no shell) so a config-controlled project_root cannot inject
+    # shell commands and paths with spaces are handled correctly.
+    command = ["mvn", "-f", str(project_root), "clean", "test"]
     try:
-        result = subprocess.check_output(
-            command, shell=True, executable="/bin/bash", stderr=subprocess.STDOUT
-        )
+        result = subprocess.check_output(command, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as cpe:
         result = cpe.output
+    except FileNotFoundError as exc:
+        raise SystemExit(
+            "Maven ('mvn') was not found on PATH. Install Maven and a JDK to use "
+            "the 'mvn' runtool."
+        ) from exc
 
-    for line in result.splitlines():
-        if "BUILD SUCCESS" in line.decode():
-            return True
-    return False
+    return b"BUILD SUCCESS" in result
 
 
 def run_mutants(
@@ -47,7 +49,11 @@ def run_mutants(
     mutants = [["MUTANT", "EQUIVALENCE", "COMPILABLE", "SURVIVES"]]
 
     if not _execute(project_root):
-        raise IOError("EXCEPTION: Original code has failing tests")
+        raise IOError(
+            "The original (unmutated) project did not pass 'mvn clean test', so "
+            "mutants cannot be evaluated against it. Run it manually to see why: "
+            f"mvn -f {project_root} clean test"
+        )
 
     for mutant_file in mutant_files:
         mutant_output = [mutant_file]

@@ -34,6 +34,24 @@ def test_execute_false_without_build_success(monkeypatch):
     assert maven._execute("proj") is False
 
 
+def test_execute_uses_argv_list_not_shell(monkeypatch):
+    # Guards against shell injection / breakage on paths with spaces: the Maven
+    # command must be an argv list (no shell), with project_root as one element.
+    captured = {}
+
+    def fake_check_output(command, *args, **kwargs):
+        captured["command"] = command
+        captured["kwargs"] = kwargs
+        return b"BUILD SUCCESS"
+
+    monkeypatch.setattr(maven.subprocess, "check_output", fake_check_output)
+
+    assert maven._execute("/path with spaces/proj") is True
+    assert isinstance(captured["command"], list)
+    assert "/path with spaces/proj" in captured["command"]
+    assert captured["kwargs"].get("shell", False) is False
+
+
 def test_execute_false_on_called_process_error(monkeypatch):
     # A killed mutant makes `mvn test` exit non-zero -> CalledProcessError; the
     # captured output is scanned instead of crashing.
@@ -42,6 +60,16 @@ def test_execute_false_on_called_process_error(monkeypatch):
 
     monkeypatch.setattr(maven.subprocess, "check_output", raise_cpe)
     assert maven._execute("proj") is False
+
+
+def test_execute_reports_missing_mvn_clearly(monkeypatch):
+    def raise_fnf(*a, **k):
+        raise FileNotFoundError(2, "No such file or directory", "mvn")
+
+    monkeypatch.setattr(maven.subprocess, "check_output", raise_fnf)
+    with pytest.raises(SystemExit) as exc:
+        maven._execute("proj")
+    assert "mvn" in str(exc.value).lower()
 
 
 # --------------------------------------------------------------------------- #
