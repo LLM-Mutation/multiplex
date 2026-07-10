@@ -74,8 +74,12 @@ Selected by `project.runtool`:
   each compilable mutant's tests with a timeout of 5× baseline. A surviving
   mutant is one whose test run reports `Failing tests: 0`. Requires the
   `defects4j` CLI and a `JDK_11` env var (see DEVELOPMENT.md).
-- `mvn` → `maven.py` — **currently broken/incomplete**; do not rely on it
-  (details in DEVELOPMENT.md § Known issues).
+- `mvn` → `maven.py` — self-contained backend for plain Maven projects. Runs
+  `mvn -f <project_root> clean test`; a mutant survives if the build passes
+  (`BUILD SUCCESS`). Baselines the original first (aborts if its tests fail),
+  then per mutant does the same equivalence → rewrite → compilable → test →
+  summary flow as the Defects4J backend. Used by the runnable example under
+  `examples/` (see DEVELOPMENT.md § Example).
 
 ## Output artifacts
 

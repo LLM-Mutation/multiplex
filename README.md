@@ -51,7 +51,7 @@ Ensure Ollama is running when using *multiplex* for this example.
 llm:
     model: ollama/gpt-oss:20b
     endpoint: http://127.0.0.1:11434
-    tokenenvvar: # env var name storing token (NOT TOKEN)
+    token_env_var: # env var name storing token (NOT TOKEN)
 ```
 [IMPORTANT]
 Security Note: Never hardcode API keys in your config file. Set an environment variable and reference its name in the tokenenvvar field.
@@ -67,6 +67,18 @@ Once configured and modules are set up, users can run *multiplex* using the foll
 ```bash
 uv run /path/to/multiplex ./path/to/config.yml
 ```
+
+#### Try the bundled example
+A self-contained example (a small Maven project mutated with the `basic`
+approach) is included. With `mvn` + a JDK on your `PATH` and a running Ollama
+(`ollama pull gpt-oss:20b`, or edit `llm.model` in the config), run from the
+repo root:
+```bash
+uv run multiplex ./examples/config.yml
+```
+Results are written to `examples/project/example/output/basic-mutants/`
+(`mutant_summary.csv`). See [`examples/README.md`](examples/README.md) for
+details.
 
 ## 🧩 Existing Modules
 *multiplex* currently includes five mutant generation modules and two execution and evaluation modules:

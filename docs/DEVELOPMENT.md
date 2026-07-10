@@ -24,6 +24,30 @@ uv run ./multiplex ./path/to/config.yml                    # run the tool
 CI (GitHub Actions, on push/PR to `main`): `test.yml` runs
 `uv run pytest tests` on Python 3.13; `ruff.yml` runs `uv run ruff check`.
 
+## Example
+
+A self-contained end-to-end example lives under `examples/`:
+
+```bash
+uv run multiplex ./examples/config.yml     # from the repo root
+```
+
+- Target: `examples/project/example/` — a tiny Maven project with one method
+  (`com.example.Classifier.classify`) and JUnit tests pinning its behavior.
+- `examples/config.yml` uses the `basic` approach and the `mvn` runtool.
+- Prerequisites: `mvn` + a JDK 11+ on PATH (the project targets Java 11; if
+  `mvn` picks up an older JDK via `JAVA_HOME` the compile fails with "release
+  version 11 not supported"), and a running Ollama serving the model
+  named in `llm.model` (default `gpt-oss:20b`; point it at any model you have,
+  e.g. `ollama pull gpt-oss:20b`). Any LiteLLM-supported endpoint works if you
+  edit `llm`.
+- Output lands in `examples/project/example/output/basic-mutants/`
+  (`mutant_N.java` plus `mutant_summary.csv`). Run artifacts (`output/`,
+  `*.orig`, Maven `target/`) are git-ignored.
+- The `basic` approach makes 10 LLM calls and the `mvn` backend runs the test
+  suite once per compilable mutant, so a full run takes a few minutes (longer
+  on a slow/local model).
+
 ## Import convention (critical)
 
 The tool is executed as a directory (`uv run ./multiplex`), which puts
@@ -58,21 +82,28 @@ same process; keep the two worlds separate.
 
 Bugs — fix or work around, don't replicate:
 
-1. **`execute/maven.py` is broken**: `run_mutants` calls `rewrite_method` with
-   5 args (signature takes 4 → TypeError), never calls its own
-   `_execute_mutant` (so `mvn test` never runs), and passes a directory to
-   `check_mutant_compilable` (which parses a single file). Use
-   `execute/defects4j.py` as the reference implementation.
-2. **STPA off-by-one**: `approach/stpa/code_generator.py` loops
+1. **STPA off-by-one**: `approach/stpa/code_generator.py` loops
    `range(0, ucas_count - 1)`, silently skipping the last UCA.
-3. **Method-not-found crash**: `extract_method_from_file` returns `None` on a
+2. **Method-not-found crash**: `extract_method_from_file` returns `None` on a
    miss, but `__main__.py` unpacks it as a tuple → opaque TypeError. Symptom:
    check `project.method`/`project.line` in the config (`line` must be the
    line of the method-name identifier).
-4. **README key mismatch**: README shows `llm.tokenenvvar`; the code reads
+3. **README key mismatch**: README shows `llm.tokenenvvar`; the code reads
    `llm.token_env_var` (the example config is correct).
-5. **`tests/execute/test_defects4j.py` is an empty stub** — the execute layer
-   has zero test coverage.
+4. **`tests/execute/test_defects4j.py` is an empty stub** — the Defects4J
+   backend has no test coverage. (The Maven backend is covered by
+   `tests/execute/test_maven.py`, which mocks `mvn` via `_execute`; that file's
+   `conftest.py` adds `multiplex/` to `sys.path` so the flat-import backend
+   module is importable — the pattern to copy for a Defects4J test.)
+
+Recently fixed (kept here so stale references elsewhere are recognizable):
+- The `prompts` dict in `__main__.py` used to read **all** `system_prompts`
+  keys unconditionally, so any missing key crashed every run with `KeyError` —
+  the shipped example config itself crashed this way. Now only the selected
+  approach's keys are required, validated up front via `multiplex/prompts.py`.
+- `execute/maven.py` used to be broken (wrong-arity `rewrite_method` call, never
+  ran `mvn test`, passed a directory to `check_mutant_compilable`). It now
+  mirrors `execute/defects4j.py` and drives the runnable example (§ Example).
 
 Behavioral gotchas — by design (or at least current design), be aware:
 
@@ -85,9 +116,10 @@ Behavioral gotchas — by design (or at least current design), be aware:
   restore).
 - "Compilable" means *parses without tree-sitter ERROR nodes* — no compiler
   runs; type errors and unresolved symbols count as compilable.
-- An invalid `mutation.approach` value only prints "Invalid approach" and
-  falls through to the execution phase.
-- All nine `system_prompts` keys are read at startup regardless of the chosen
-  approach — a missing key is a KeyError before anything runs.
+- An invalid `mutation.approach` value, or a missing/empty required
+  `system_prompts` key for the chosen approach, raises `SystemExit` at startup
+  (before the output wipe). Only the selected approach's prompt keys are
+  required — see `multiplex/prompts.py`.
 - Mutahunter prompts are not bundled (licensing); the user pastes them into
-  the config.
+  the config. Running the `mutahunter` approach without them fails fast with a
+  clear message.

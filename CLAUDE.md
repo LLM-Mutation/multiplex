@@ -29,7 +29,8 @@ uv run ./multiplex ./path/to/config.yml                     # run the tool
 ## Critical conventions
 
 - **Import convention**: the tool runs as a directory (`uv run ./multiplex`), so `multiplex/` itself is on `sys.path`. Modules inside `multiplex/` import each other **without** the package prefix (`from model import Model`, `from util.io import ...`); tests import **with** it (`from multiplex.checks... import ...`). Match the style of the file you are editing.
-- Pipeline entry point and dispatch: `multiplex/__main__.py`. Adding an approach touches three places (new `approach/<name>/controller.py` package, prompt keys in config **and** the `prompts` dict in `__main__.py`, dispatch branch) — see docs/EXTENDING.md.
-- All `system_prompts` config keys are read unconditionally at startup; a missing key is an immediate KeyError.
+- Pipeline entry point and dispatch: `multiplex/__main__.py`. Adding an approach touches three places (new `approach/<name>/controller.py` package, a `APPROACH_PROMPT_KEYS` entry in `multiplex/prompts.py`, dispatch branch in `__main__.py`) — see docs/EXTENDING.md.
+- Only the selected approach's `system_prompts` keys are required; `resolve_prompts` in `multiplex/prompts.py` validates them (and the approach name) up front, raising `SystemExit` before any destructive step.
 - `<projectroot>/output/` is wiped at the start of every run; the target source file is edited in place and restored from a `.orig` backup.
-- Before relying on `execute/maven.py` or the STPA mutant loop, check docs/DEVELOPMENT.md § Known issues — both have verified bugs (Maven backend is broken; use `execute/defects4j.py` as reference).
+- A runnable end-to-end example lives in `examples/` (self-contained Maven project, `basic` approach, `mvn` backend): `uv run multiplex ./examples/config.yml` (needs `mvn`, a JDK, and a running Ollama). See docs/DEVELOPMENT.md § Example.
+- The STPA mutant loop has a verified off-by-one (drops its last UCA) — see docs/DEVELOPMENT.md § Known issues.

@@ -12,6 +12,7 @@ import approach.llmorpheus.controller as llmorpheus
 from execute import maven, defects4j
 
 from model import Model
+from prompts import resolve_prompts
 from util.io import reset_source_code
 from util.extract_method import extract_method_from_file
 
@@ -44,17 +45,11 @@ def main():
 
     output_path = Path(config['project']['projectroot'], 'output/')
     duplicate_file_path = Path(config['project']['filename'] + ".orig")
-    prompts = {
-        "hazop_describe_process" : config['system_prompts']['hazop_describe_process'],
-        "hazop_identify_deviations" : config['system_prompts']['hazop_identify_deviations'],
-        "hazop_implement_deviations" : config['system_prompts']['hazop_implement_deviations'],
-        "stpa_describe_control_flow" : config['system_prompts']['stpa_describe_control_flow'],
-        "stpa_identify_ucas" : config['system_prompts']['stpa_identify_ucas'],
-        "stpa_implement_ucas" : config['system_prompts']['stpa_implement_ucas'],
-        "basic_generate_mutants" : config['system_prompts']['basic_generate_mutants'],
-        "mutahunter_generate_mutants" : config['system_prompts']['mutahunter_generate_mutants'],
-        "llmorpheus_system" : config['system_prompts']['llmorpheus_system']
-    }
+
+    # Validate the approach and its required prompts before any destructive work
+    # (output wipe, source reset) below.
+    approach = config['mutation']['approach']
+    prompts = resolve_prompts(config, approach)
 
     print(f"File: {config['project']['filename']}")
     print(f"Method: {config['project']['method']}")
@@ -81,18 +76,16 @@ def main():
     model = Model(model=config['llm']['model'], endpoint=config['llm']['endpoint'],
                   api_key_var=config['llm']['token_env_var'])
 
-    if config['mutation']['approach'] == "stpa":
+    if approach == "stpa":
         stpa.main(model, output_path, prompts)
-    elif config['mutation']['approach'] == "hazop":
+    elif approach == "hazop":
         hazop.main(model, output_path, prompts)
-    elif config['mutation']['approach'] == "basic":
+    elif approach == "basic":
         basic.main(model, output_path, prompts)
-    elif config['mutation']['approach'] == "mutahunter":
+    elif approach == "mutahunter":
         mutahunter.main(model, output_path, prompts)
-    elif config['mutation']['approach'] == "llmorpheus":
+    elif approach == "llmorpheus":
         llmorpheus.main(model, output_path, prompts)
-    else:
-        print("Invalid approach")
 
     if config['project']['runtool'] == "mvn":
         maven.run_mutants(

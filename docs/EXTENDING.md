@@ -29,11 +29,12 @@ the multi-prompt-chain template.
      mutant = mutant.removeprefix("```java")
      mutant = mutant.split("```", 1)[0]
      ```
-2. **Register the prompt key(s)**: add `<name>_...` entries to the `prompts`
-   dict in `multiplex/__main__.py` *and* to the `system_prompts` section of
-   every config file (including `examples/config.yml`). All keys in that dict
-   are read unconditionally — omitting one breaks **every** run with KeyError,
-   not just runs of your approach.
+2. **Register the prompt key(s)**: add a `"<name>": [...]` entry to
+   `APPROACH_PROMPT_KEYS` in `multiplex/prompts.py` listing the
+   `system_prompts` keys your approach reads. Only the selected approach's keys
+   are required at runtime, so users running other approaches need not define
+   yours (and vice versa). Document the keys in `docs/CONFIG.md`; adding them to
+   `examples/config.yml` (a commented stub is fine) is optional but helpful.
 3. **Register the dispatch branch**: add an `elif config['mutation']['approach']
    == "<name>":` branch in `multiplex/__main__.py` calling
    `<name>.main(model, output_path, prompts)`, plus the corresponding
@@ -44,7 +45,8 @@ the multi-prompt-chain template.
 
 ## Add an execution/evaluation backend
 
-Model on `multiplex/execute/defects4j.py` (not `maven.py`, which is broken).
+Model on `multiplex/execute/defects4j.py` or `multiplex/execute/maven.py`
+(both follow the same flow; `maven.py` is the simpler, self-contained one).
 
 1. Create `multiplex/execute/<name>.py` exposing:
    ```python

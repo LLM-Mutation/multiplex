@@ -4,8 +4,10 @@
 `uv run ./multiplex ./path/to/config.yml`.
 Template: [`examples/config.yml`](../examples/config.yml).
 
-All keys below are read unconditionally by `multiplex/__main__.py` — a missing
-key raises `KeyError` at startup, even for approaches you are not running.
+Only the keys the selected `mutation.approach` needs are required. `project`,
+`mutation`, and `llm` keys are always required; `system_prompts` keys are
+required per-approach (see that section). Missing required keys fail fast at
+startup with an actionable `SystemExit`, before any output is wiped.
 
 ## `project`
 
@@ -15,13 +17,13 @@ key raises `KeyError` at startup, even for approaches you are not running.
 | `filename` | path | The `.java` source file containing the method under test. Backed up to `<filename>.orig` during the run. |
 | `method` | string | Name of the method (or constructor) to mutate. |
 | `line` | int | 1-based line number of the method **name identifier** in `filename` (not annotations above it). Both `method` and `line` must match for extraction to succeed; disambiguates overloads. |
-| `runtool` | `mvn` \| `d4j` | Execution backend. `d4j` (Defects4J) is the complete one; `mvn` is currently broken (DEVELOPMENT.md § Known issues). |
+| `runtool` | `mvn` \| `d4j` | Execution backend. `mvn` runs a plain Maven project (`mvn clean test`) and is used by the runnable `examples/` setup; `d4j` targets a Defects4J checkout (needs the `defects4j` CLI + `JDK_11`). |
 
 ## `mutation`
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| `approach` | `basic` \| `hazop` \| `stpa` \| `mutahunter` \| `llmorpheus` | Mutant-generation approach. Any other value prints "Invalid approach" and continues to the execution phase (which then fails on the missing mutants dir). |
+| `approach` | `basic` \| `hazop` \| `stpa` \| `mutahunter` \| `llmorpheus` | Mutant-generation approach. An unknown value fails fast at startup with a `SystemExit` listing the valid approaches. |
 
 ## `llm`
 
@@ -36,8 +38,12 @@ example config use `token_env_var`. `token_env_var` is correct.
 
 ## `system_prompts`
 
-All nine keys are required (multi-line YAML strings, typically `|` blocks).
-User prompts are constructed in code; only system prompts live in config.
+Multi-line YAML strings (typically `|` blocks). Only the keys used by the
+selected `mutation.approach` are required — prompts for other approaches may be
+omitted. The approach→required-keys mapping is `APPROACH_PROMPT_KEYS` in
+`multiplex/prompts.py`; a missing or empty required key raises a `SystemExit`
+naming it. User prompts are constructed in code; only system prompts live in
+config.
 
 | Key | Used by |
 |-----|---------|
