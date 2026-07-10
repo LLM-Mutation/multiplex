@@ -28,5 +28,5 @@ uv run ./multiplex ./path/to/config.yml                     # run the tool
 - Adding a mutant-generation approach touches three places: a new `multiplex/approach/<name>/` package with `controller.py`, an `APPROACH_PROMPT_KEYS` entry in `multiplex/prompts.py`, and a dispatch branch in `multiplex/__main__.py`. Only the selected approach's `system_prompts` keys are required; `resolve_prompts` validates the approach and its keys up front, raising `SystemExit` before any destructive step.
 - Mutant files must be complete replacement methods written to `output/<approach>-mutants/mutant_N.java`; they are spliced verbatim over the original method's byte range.
 - tree-sitter versions are pinned (`tree-sitter==0.23.2`, `tree-sitter-java==0.23.5`); do not bump them casually — the parsing code depends on that API.
-- A runnable end-to-end example lives in `examples/` (self-contained Maven project, `basic` approach, `mvn` backend): `uv run multiplex ./examples/config.yml`. The STPA mutant loop still drops its last item — check `docs/DEVELOPMENT.md` § Known issues.
+- A runnable end-to-end example lives in `examples/` (self-contained Maven project, `basic` approach, `mvn` backend): `uv run multiplex ./examples/config.yml`.
 - Keep pure logic (parsing, splicing, checks) separate from `model.make_request` call sites — LLM calls are not mocked in tests.

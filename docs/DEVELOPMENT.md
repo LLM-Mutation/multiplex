@@ -82,28 +82,7 @@ same process; keep the two worlds separate.
 
 Bugs — fix or work around, don't replicate:
 
-1. **STPA off-by-one**: `approach/stpa/code_generator.py` loops
-   `range(0, ucas_count - 1)`, silently skipping the last UCA.
-2. **Method-not-found crash**: `extract_method_from_file` returns `None` on a
-   miss, but `__main__.py` unpacks it as a tuple → opaque TypeError. Symptom:
-   check `project.method`/`project.line` in the config (`line` must be the
-   line of the method-name identifier).
-3. **README key mismatch**: README shows `llm.tokenenvvar`; the code reads
-   `llm.token_env_var` (the example config is correct).
-4. **`tests/execute/test_defects4j.py` is an empty stub** — the Defects4J
-   backend has no test coverage. (The Maven backend is covered by
-   `tests/execute/test_maven.py`, which mocks `mvn` via `_execute`; that file's
-   `conftest.py` adds `multiplex/` to `sys.path` so the flat-import backend
-   module is importable — the pattern to copy for a Defects4J test.)
-
-Recently fixed (kept here so stale references elsewhere are recognizable):
-- The `prompts` dict in `__main__.py` used to read **all** `system_prompts`
-  keys unconditionally, so any missing key crashed every run with `KeyError` —
-  the shipped example config itself crashed this way. Now only the selected
-  approach's keys are required, validated up front via `multiplex/prompts.py`.
-- `execute/maven.py` used to be broken (wrong-arity `rewrite_method` call, never
-  ran `mvn test`, passed a directory to `check_mutant_compilable`). It now
-  mirrors `execute/defects4j.py` and drives the runnable example (§ Example).
+_No open bugs currently tracked._
 
 Behavioral gotchas — by design (or at least current design), be aware:
 
