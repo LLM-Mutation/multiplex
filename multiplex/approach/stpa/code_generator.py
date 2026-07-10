@@ -30,7 +30,7 @@ def generate_code(model, output_dir, system_prompt):
         {"content": _get_system_prompt(method_under_test, system_prompt), "role": "system"}
     ]
 
-    for count in range(0, ucas_count - 1):
+    for count in range(0, ucas_count):
         messages = messages_orig.copy()
         user_prompt = f"{ucas[count]}"
         messages.append({"content": user_prompt, "role": "user"})
