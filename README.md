@@ -113,7 +113,7 @@ Users can add a mutant execution and evaluation class to `multiplex/execute/` th
 ## 💬 Questions and Community
 Have a question or found a bug? We’d love to hear from you. Please open an issue in the **Issue Tracker** and we'll get back to you!
 
-## Citing this tool
+## 📝 Citing this tool
 If you use this tool in your work or research, please cite as follows:
 
 ```
