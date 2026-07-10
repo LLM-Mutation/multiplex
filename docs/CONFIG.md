@@ -17,7 +17,7 @@ startup with an actionable `SystemExit`, before any output is wiped.
 | `filename` | path | The `.java` source file containing the method under test. Backed up to `<filename>.orig` during the run. |
 | `method` | string | Name of the method (or constructor) to mutate. |
 | `line` | int | 1-based line number of the method **name identifier** in `filename` (not annotations above it). Both `method` and `line` must match for extraction to succeed; disambiguates overloads. |
-| `runtool` | `mvn` \| `d4j` | Execution backend. `d4j` (Defects4J) is the complete one; `mvn` is currently broken (DEVELOPMENT.md § Known issues). |
+| `runtool` | `mvn` \| `d4j` | Execution backend. `mvn` runs a plain Maven project (`mvn clean test`) and is used by the runnable `examples/` setup; `d4j` targets a Defects4J checkout (needs the `defects4j` CLI + `JDK_11`). |
 
 ## `mutation`
 

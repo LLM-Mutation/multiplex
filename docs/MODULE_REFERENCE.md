@@ -176,7 +176,12 @@ run_mutants(project_root, filename, output_path,
             method_start_byte, method_end_byte, duplicate, approach)
 ```
 
-- **Broken — do not use as reference.** Calls `rewrite_method` with a stale
-  5-argument signature (TypeError), never invokes its own `_execute_mutant`
-  (`mvn clean test`), and calls `check_mutant_compilable` on a directory.
-  Model a fix on `execute/defects4j.py`. See DEVELOPMENT.md § Known issues.
+- `_execute(project_root) -> bool`: runs `mvn -f <project_root> clean test`;
+  True if the output contains `BUILD SUCCESS` (all tests green → mutant
+  survived), False otherwise (mutant killed, incl. compile failures Maven
+  catches that tree-sitter does not).
+- `run_mutants`: same flow as the Defects4J backend — baseline the original
+  project (raises `IOError` if its tests fail), then per mutant: restore from
+  backup → equivalence check → rewrite → compilable check → (if compilable) run
+  tests → append `[name, equivalent, compilable, survives]` → write
+  `mutant_summary.csv`. Drives the runnable example under `examples/`.

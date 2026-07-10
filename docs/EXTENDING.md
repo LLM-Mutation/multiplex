@@ -45,7 +45,8 @@ the multi-prompt-chain template.
 
 ## Add an execution/evaluation backend
 
-Model on `multiplex/execute/defects4j.py` (not `maven.py`, which is broken).
+Model on `multiplex/execute/defects4j.py` or `multiplex/execute/maven.py`
+(both follow the same flow; `maven.py` is the simpler, self-contained one).
 
 1. Create `multiplex/execute/<name>.py` exposing:
    ```python
