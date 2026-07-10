@@ -29,4 +29,5 @@ uv run ./multiplex ./path/to/config.yml                     # run the tool
 - **Import convention**: modules inside `multiplex/` import each other **without** the package prefix (`from model import Model`); tests import **with** it (`from multiplex.checks... import ...`). Match the file you are editing. Rationale in `docs/DEVELOPMENT.md`.
 - Adding an approach touches three places (package + `APPROACH_PROMPT_KEYS` entry in `multiplex/prompts.py` + dispatch branch). Only the selected approach's `system_prompts` keys are required, validated up front by `resolve_prompts`. See `docs/EXTENDING.md`.
 - tree-sitter versions are pinned; do not bump them casually.
-- Check `docs/DEVELOPMENT.md` § Known issues before building on `execute/maven.py` (broken) or the STPA mutant loop (off-by-one); `execute/defects4j.py` is the reference execution backend.
+- A runnable example lives in `examples/`: `uv run multiplex ./examples/config.yml` (self-contained Maven project, needs `mvn` + a JDK + a running Ollama). See `docs/DEVELOPMENT.md` § Example.
+- The STPA mutant loop has a verified off-by-one — see `docs/DEVELOPMENT.md` § Known issues.
