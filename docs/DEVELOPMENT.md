@@ -35,7 +35,9 @@ uv run multiplex ./examples/config.yml     # from the repo root
 - Target: `examples/project/example/` — a tiny Maven project with one method
   (`com.example.Classifier.classify`) and JUnit tests pinning its behavior.
 - `examples/config.yml` uses the `basic` approach and the `mvn` runtool.
-- Prerequisites: `mvn` + a JDK on PATH, and a running Ollama serving the model
+- Prerequisites: `mvn` + a JDK 11+ on PATH (the project targets Java 11; if
+  `mvn` picks up an older JDK via `JAVA_HOME` the compile fails with "release
+  version 11 not supported"), and a running Ollama serving the model
   named in `llm.model` (default `gpt-oss:20b`; point it at any model you have,
   e.g. `ollama pull gpt-oss:20b`). Any LiteLLM-supported endpoint works if you
   edit `llm`.
