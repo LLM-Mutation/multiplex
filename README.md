@@ -124,3 +124,15 @@ If you use this tool in your work or research, please cite as follows:
   year      = {2026},
 }
 ```
+
+If you are specifically interested in Hazard Analysis approaches for guiding LLM-based mutant generation, please consider reading (and if relevant, citing):
+
+```
+@inproceedings{Maton2026,
+  author    = "Maton, Megan and Kapfhammer, Gregory M. and McMinn, Phil",
+  title     = "Empirically Comparing Hazard-Guided LLM Mutation Techniques with Existing LLM- and
+               Rule-Based Approaches",
+  booktitle = "International Conference on Evaluation and Assessment in Software Engineering (EASE)",
+  year      = "2026"
+}
+```
