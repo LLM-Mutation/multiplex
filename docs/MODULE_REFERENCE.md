@@ -62,8 +62,9 @@ extract_method_from_file(file_path, method_name, output_dir, start_line)
   `start_line` (1-based). Both must match — `start_line` is the line of the
   method *name*, not of annotations above it.
 - Writes the method source to `output_dir/original_method.java`.
-- Returns `None` if not found (logs a warning). Caller in `__main__.py`
-  unpacks the tuple directly, so a miss crashes with TypeError.
+- Returns `None` if not found (logs a warning). The caller in `__main__.py`
+  checks for `None` and exits with a clear `SystemExit` naming
+  `project.method`/`project.line`.
 
 ## util/rewrite_method.py
 
@@ -131,8 +132,7 @@ relevant `prompts[...]` key(s):
 - `stpa`: `control_diagram.create_control_diagram` → `control_diagram.txt` (DOT);
   `uca_generator.generate_ucas` → `ucas.csv`;
   `code_generator.generate_code` → one mutant per UCA
-  (loop is `range(0, ucas_count - 1)`: the **last UCA is skipped** — see
-  DEVELOPMENT.md § Known issues).
+  (loop is `range(0, ucas_count)` — one mutant for every UCA).
 - `mutahunter`: `code_generator.generate_code` — one request containing the
   method's AST plus line-numbered source; expects YAML back with
   `mutants: [{mutated_code, line_number}, ...]`, spliced locally via

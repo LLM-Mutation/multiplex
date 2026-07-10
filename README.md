@@ -55,7 +55,7 @@ llm:
     token_env_var: # env var name storing token (NOT TOKEN)
 ```
 [IMPORTANT]
-Security Note: Never hardcode API keys in your config file. Set an environment variable and reference its name in the tokenenvvar field.
+Security Note: Never hardcode API keys in your config file. Set an environment variable and reference its name in the token_env_var field.
 
 #### System Prompts
 **NOTE:** Mutahunter Module prompts must be added by user due to licensing restrictions. - [User Prompt Link](https://github.com/codeintegrity-ai/mutahunter/blob/main/src/mutahunter/core/templates/mutant_generation/mutator_user.txt) / [System Prompt Link](https://github.com/codeintegrity-ai/mutahunter/blob/main/src/mutahunter/core/templates/mutant_generation/mutator_system.txt).

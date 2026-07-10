@@ -33,9 +33,6 @@ startup with an actionable `SystemExit`, before any output is wiped.
 | `endpoint` | URL | LLM API endpoint, e.g. `http://127.0.0.1:11434`. If the string contains `azure`, Azure env vars are set automatically. |
 | `token_env_var` | string or empty | **Name** of the environment variable holding the API key — never the key itself. Leave empty for keyless local endpoints (e.g. Ollama). The named var must exist or startup fails with KeyError. |
 
-Note: the top-level README shows this key as `tokenenvvar`; the code and
-example config use `token_env_var`. `token_env_var` is correct.
-
 ## `system_prompts`
 
 Multi-line YAML strings (typically `|` blocks). Only the keys used by the

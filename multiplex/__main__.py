@@ -69,9 +69,16 @@ def main():
 
     reset_source_code(duplicate_file_path, config['project']['filename'])
 
-    method_start_byte, method_end_byte = extract_method_from_file(
+    method_span = extract_method_from_file(
         config['project']['filename'], config['project']['method'], output_path, config['project']['line']
     )
+    if method_span is None:
+        raise SystemExit(
+            f"Method '{config['project']['method']}' not found at line {config['project']['line']} "
+            f"in {config['project']['filename']}. Check project.method and project.line "
+            f"(line must be the line of the method-name identifier)."
+        )
+    method_start_byte, method_end_byte = method_span
 
     model = Model(model=config['llm']['model'], endpoint=config['llm']['endpoint'],
                   api_key_var=config['llm']['token_env_var'])
