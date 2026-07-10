@@ -74,6 +74,12 @@ Bugs — fix or work around, don't replicate:
 5. **`tests/execute/test_defects4j.py` is an empty stub** — the execute layer
    has zero test coverage.
 
+Recently fixed (kept here so stale references elsewhere are recognizable): the
+`prompts` dict in `__main__.py` used to read **all** `system_prompts` keys
+unconditionally, so any missing key crashed every run with `KeyError` — the
+shipped example config itself crashed this way. Now only the selected approach's
+keys are required, validated up front via `multiplex/prompts.py`.
+
 Behavioral gotchas — by design (or at least current design), be aware:
 
 - `<projectroot>/output/` is **deleted without prompting** at every run start
@@ -85,9 +91,10 @@ Behavioral gotchas — by design (or at least current design), be aware:
   restore).
 - "Compilable" means *parses without tree-sitter ERROR nodes* — no compiler
   runs; type errors and unresolved symbols count as compilable.
-- An invalid `mutation.approach` value only prints "Invalid approach" and
-  falls through to the execution phase.
-- All nine `system_prompts` keys are read at startup regardless of the chosen
-  approach — a missing key is a KeyError before anything runs.
+- An invalid `mutation.approach` value, or a missing/empty required
+  `system_prompts` key for the chosen approach, raises `SystemExit` at startup
+  (before the output wipe). Only the selected approach's prompt keys are
+  required — see `multiplex/prompts.py`.
 - Mutahunter prompts are not bundled (licensing); the user pastes them into
-  the config.
+  the config. Running the `mutahunter` approach without them fails fast with a
+  clear message.

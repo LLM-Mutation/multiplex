@@ -20,6 +20,20 @@ class Model:
 - If `"azure" in endpoint`, sets `AZURE_AI_API_BASE` and `AZURE_AI_API_KEY`.
 - `messages` is a LiteLLM/OpenAI-style list of `{"role": ..., "content": ...}`.
 
+## prompts.py
+
+```python
+APPROACH_PROMPT_KEYS: dict[str, list[str]]     # approach name -> required system_prompts keys
+resolve_prompts(config, approach) -> dict      # {key: prompt} for the approach's keys
+```
+
+- `resolve_prompts` reads only the selected approach's keys from
+  `config["system_prompts"]`. Raises `SystemExit` (actionable message) if
+  `approach` is unknown or any required key is missing/empty. Pure function, no
+  I/O — called by `__main__.py` before any destructive step. Importable in tests
+  as `from multiplex.prompts import ...` (no sibling imports, so it works under
+  both the flat runtime import and the package-prefixed test import).
+
 ## util/io.py
 
 ```python
