@@ -2,7 +2,8 @@
 # Run from the repo root:  uv run multiplex ./examples/config.yml
 #
 # Requirements for this example:
-#   - Maven (`mvn`) and a JDK on PATH (used by the `mvn` runtool below).
+#   - Maven (`mvn`) and a JDK 11+ on PATH (used by the `mvn` runtool below;
+#     the example project targets Java 11 — see project/example/pom.xml).
 #   - A running Ollama serving the model named under `llm.model`
 #     (`ollama pull gpt-oss:20b`, or point `llm.model` at any model you have).
 

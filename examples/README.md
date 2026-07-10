@@ -16,7 +16,11 @@ approach, then runs that project's JUnit tests against each mutant with the
 
 ## Prerequisites
 
-- `mvn` and a JDK on your `PATH` (the `mvn` runtool runs `mvn clean test`).
+- `mvn` and a JDK **11 or newer** on your `PATH` (the `mvn` runtool runs
+  `mvn clean test`; the project targets Java 11). If `mvn` uses an older JDK —
+  e.g. via `JAVA_HOME` — the build fails with "release version 11 not
+  supported"; point `JAVA_HOME` at a JDK 11+ or lower `maven.compiler.release`
+  in `project/example/pom.xml`.
 - A running [Ollama](https://ollama.com) serving the model named in
   `config.yml` under `llm.model` (default `gpt-oss:20b`):
 
