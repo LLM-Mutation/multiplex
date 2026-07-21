@@ -8,6 +8,7 @@ import approach.hazop.controller as hazop
 import approach.llmorpheus.controller as llmorpheus
 import approach.mutahunter.controller as mutahunter
 import approach.stpa.controller as stpa
+from util.marv import output_marv
 import yaml
 from execute import defects4j, maven
 from model import Model
@@ -37,10 +38,12 @@ def main():
     print(s)
     parser = argparse.ArgumentParser(description="multiplex")
     parser.add_argument("config", help="Path to config file")
+    parser.add_argument("--marv", help="Output to Marv Schema", action="store_true")
 
     args = parser.parse_args()
 
     config = yaml.safe_load(open(args.config))
+    marv = args.marv
 
     output_path = Path(config["project"]["projectroot"], "output/")
     duplicate_file_path = Path(config["project"]["filename"] + ".orig")
@@ -118,6 +121,9 @@ def main():
             duplicate_file_path,
             config["mutation"]["approach"],
         )
+
+    if marv:
+        output_marv(output_path, approach)
 
     reset_source_code(duplicate_file_path, config["project"]["filename"])
 
