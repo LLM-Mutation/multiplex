@@ -81,6 +81,25 @@ Results are written to `examples/project/example/output/basic-mutants/`
 (`mutant_summary.csv`). See [`examples/README.md`](examples/README.md) for
 details.
 
+#### Optional: Marv output
+If you want Marv-compatible output, install Marv and make sure its binary is
+on your `PATH` before running `multiplex`:
+
+```bash
+go install github.com/SecretSheppy/marv@latest
+export PATH="$HOME/go/bin:$PATH"
+marv --version
+```
+
+Then run `multiplex` with the `--marv` flag to generate `output/marv.json`
+alongside the usual mutant files and summary:
+
+```bash
+uv run multiplex --marv ./examples/config.yml
+```
+
+Marv can then read the generated `marv.json` from the project output folder.
+
 ## 🧩 Existing Modules
 *multiplex* currently includes five mutant generation modules and two execution and evaluation modules:
 
