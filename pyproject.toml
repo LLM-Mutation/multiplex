@@ -5,7 +5,7 @@ description = "⚠️ A Modular LLM-based Mutation Tool."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "litellm>=1.84.0",
+    "litellm>=1.84.1",
     "openai>=1.104.2",
     "pyyaml>=6.0.2",
     "tree-sitter==0.23.2",
