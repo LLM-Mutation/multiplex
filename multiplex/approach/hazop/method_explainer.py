@@ -6,9 +6,9 @@ from approach.util import get_method_under_test
 from util.io import write_to_file
 
 
-def describe_method(model, output_dir, system_prompt):
+def describe_method(model, output_dir, system_prompt, language):
     """Describe the method."""
-    user_prompt = get_method_under_test(output_dir)
+    user_prompt = get_method_under_test(output_dir, language)
 
     messages = [
         {"content": system_prompt, "role": "system"},

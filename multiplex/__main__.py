@@ -9,8 +9,9 @@ import approach.mutahunter.controller as mutahunter
 import approach.stpa.controller as stpa
 import approach.hazop.controller as hazop
 import approach.llmorpheus.controller as llmorpheus
-from execute import maven, defects4j
+from execute import maven, defects4j, pytest_runner
 
+from languages import get_language
 from model import Model
 from prompts import resolve_prompts
 from util.io import reset_source_code
@@ -46,17 +47,16 @@ def main():
     output_path = Path(config['project']['projectroot'], 'output/')
     duplicate_file_path = Path(config['project']['filename'] + ".orig")
 
-    # Validate the approach and its required prompts before any destructive work
-    # (output wipe, source reset) below.
     approach = config['mutation']['approach']
     prompts = resolve_prompts(config, approach)
+    language = get_language(config['project'].get('language'))
 
     print(f"File: {config['project']['filename']}")
     print(f"Method: {config['project']['method']}")
 
     if output_path.exists():
-        # response = input(f"Output dir ({output_path}) already exists. Would you like to delete it and continue? (y/n)")
-        response = "y"
+        response = input(f"Output dir ({output_path}) already exists. Would you like to delete it and continue? (y/n)")
+        # response = "y"
 
         if response == "y":
             shutil.rmtree(output_path)
@@ -70,7 +70,8 @@ def main():
     reset_source_code(duplicate_file_path, config['project']['filename'])
 
     method_span = extract_method_from_file(
-        config['project']['filename'], config['project']['method'], output_path, config['project']['line']
+        config['project']['filename'], config['project']['method'], output_path,
+        config['project']['line'], language
     )
     if method_span is None:
         raise SystemExit(
@@ -84,15 +85,15 @@ def main():
                   api_key_var=config['llm']['token_env_var'])
 
     if approach == "stpa":
-        stpa.main(model, output_path, prompts)
+        stpa.main(model, output_path, prompts, language)
     elif approach == "hazop":
-        hazop.main(model, output_path, prompts)
+        hazop.main(model, output_path, prompts, language)
     elif approach == "basic":
-        basic.main(model, output_path, prompts)
+        basic.main(model, output_path, prompts, language)
     elif approach == "mutahunter":
-        mutahunter.main(model, output_path, prompts)
+        mutahunter.main(model, output_path, prompts, language)
     elif approach == "llmorpheus":
-        llmorpheus.main(model, output_path, prompts)
+        llmorpheus.main(model, output_path, prompts, language)
 
     if config['project']['runtool'] == "mvn":
         maven.run_mutants(
@@ -103,10 +104,16 @@ def main():
             method_end_byte,
             duplicate_file_path,
             config['mutation']['approach'],
+            language,
         )
     elif config['project']['runtool'] == "d4j":
         defects4j.run_mutants(config['project']['projectroot'], config['project']['filename'], output_path,
-                              method_start_byte, method_end_byte, duplicate_file_path, config['mutation']['approach'])
+                              method_start_byte, method_end_byte, duplicate_file_path,
+                              config['mutation']['approach'], language)
+    elif config['project']['runtool'] == "pytest":
+        pytest_runner.run_mutants(config['project']['projectroot'], config['project']['filename'], output_path,
+                                  method_start_byte, method_end_byte, duplicate_file_path,
+                                  config['mutation']['approach'], language)
 
     reset_source_code(duplicate_file_path, config['project']['filename'])
 
