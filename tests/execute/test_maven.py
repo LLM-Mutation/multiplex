@@ -7,6 +7,9 @@ import pytest
 # `execute.maven` is imported the runtime way (multiplex/ on sys.path); see
 # tests/execute/conftest.py.
 from execute import maven
+from languages import get_language
+
+JAVA = get_language("java")
 
 METHOD = "int f(int n) { return n; }"
 
@@ -118,6 +121,7 @@ def _run(project, approach="basic"):
         project["end"],
         project["duplicate"],
         approach,
+        JAVA,
     )
 
 
