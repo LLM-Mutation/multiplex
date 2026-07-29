@@ -87,6 +87,43 @@ add_mutant_to_method(numbered_src, mutant, line_number) -> str
   replaces line `line_number` with `mutant` (preserving indentation), and
   returns un-numbered source. Used by the mutahunter approach.
 
+## util/marv.py
+
+```python
+output_marv(output_dir, approach)   # writes output_dir/marv.json (Marv schema); no-op unless --marv
+```
+
+- Called from `__main__.py` only when the `--marv` flag is set, after execution.
+  Reads `output_dir/original_method.java` and every
+  `<approach>-mutants/mutant_N.java`; raises `FileNotFoundError` if the original
+  method file or the mutants dir is missing. Pure Python — does **not** invoke
+  the `marv` binary.
+- Per-mutant `Status` comes from `<approach>-mutants/mutant_summary.csv`:
+  `equivalent` → `IGNORED`, non-compilable → `CRASHED`, `survives` → `SURVIVED`,
+  otherwise `KILLED`; `PENDING` when no summary row exists.
+- `Operation` is `REPLACE_METHOD`, except under the `hazop` approach where it is
+  the guideword from `hazop-mutated-descriptions.txt` (zipped to mutants in
+  sorted order).
+- Each mutation's `Start`/`End` are the line/char bounds of the code that
+  **differs** between the original method and that mutant, located with `difflib`
+  (`_file_span`). The enclosing `MutantRegion` spans the whole
+  `original_method.java`.
+- Emits JSON mapping `"original_method.java"` → one region → its mutations,
+  matching Marv's mutations schema.
+
+## util/marv_model.py
+
+Dataclasses mirroring [Marv's mutations schema](https://github.com/SecretSheppy/marv/blob/main/api/marv-mutations-schema.json),
+serialized to JSON by `util/marv.py`:
+
+- `Status` — enum: `KILLED`, `SURVIVED`, `CRASHED`, `TIMEOUT`, `NO_COVERAGE`,
+  `PENDING`, `IGNORED`.
+- `Pos(Line, Char)` — a source position; both fields 0-indexed.
+- `Mutation(ID, Description, Operation, Start, End, Status, Replacement, FrameworkMutantID=None)`.
+- `MutantRegion(ID, StartLine, EndLine, Mutations=[])` — a conflict region
+  (`StartLine` inclusive, `EndLine` non-inclusive, both 0-indexed).
+- `MarvOutput(files={})` — map of source path → list of `MutantRegion`.
+
 ## checks/compilable.py
 
 ```python
