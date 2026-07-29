@@ -46,7 +46,7 @@ def _user_prompt(code: str, orig: str):
     """
 
 
-def generate_code(model: Model, output_dir: Path, llmorpheus_system: str):
+def generate_code(model: Model, output_dir: Path, llmorpheus_system: str, language):
     placeholder_dir = Path(output_dir, "placeholders")
     mutants_dir = Path(output_dir, "llmorpheus-mutants/")
     mutants_dir.mkdir(parents=True, exist_ok=True)
@@ -57,13 +57,13 @@ def generate_code(model: Model, output_dir: Path, llmorpheus_system: str):
     if not isinstance(locations, dict):
         raise ValueError("Expected a JSON object at the top level.")
 
-    placeholders_count = len(list(placeholder_dir.glob("*_placeholder.java")))
+    placeholders_count = len(list(placeholder_dir.glob(f"*_placeholder{language.extension}")))
 
     mutant_number = 0
     for count in range(0, placeholders_count):
-        p_f = f"{count}_placeholder.java"
+        p_f = f"{count}_placeholder{language.extension}"
         p_fn = Path(placeholder_dir, p_f)
-        orig_p_fn = Path(placeholder_dir, f"{count}_orig.java")
+        orig_p_fn = Path(placeholder_dir, f"{count}_orig{language.extension}")
 
         with open(p_fn, "r") as pf:
             p = pf.read()
@@ -81,11 +81,11 @@ def generate_code(model: Model, output_dir: Path, llmorpheus_system: str):
 
         for mutant_code in matches:
 
-            mutant_file_path = Path(mutants_dir, f"mutant_{str(mutant_number)}.java")
+            mutant_file_path = Path(mutants_dir, f"mutant_{str(mutant_number)}{language.extension}")
 
             start_byte = locations[p_f]["start_byte"]
             end_byte = locations[p_f]["end_byte"]
-            method_under_test = get_method_under_test(output_dir)
+            method_under_test = get_method_under_test(output_dir, language)
             code_bytes = method_under_test.encode()
             mutant = (
                 code_bytes[:start_byte] + mutant_code.encode() + code_bytes[end_byte:]

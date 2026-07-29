@@ -6,9 +6,9 @@ from approach.util import get_method_under_test
 from util.io import write_to_file
 
 
-def create_control_diagram(model, output_dir, system_prompt):
+def create_control_diagram(model, output_dir, system_prompt, language):
     """Create control description from method"""
-    user_prompt = get_method_under_test(output_dir)
+    user_prompt = get_method_under_test(output_dir, language)
     messages = [
         {"content": system_prompt, "role": "system"},
         {"content": user_prompt, "role": "user"},

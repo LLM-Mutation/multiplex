@@ -2,7 +2,8 @@
 
 *multiplex* takes a single YAML config file:
 `uv run ./multiplex ./path/to/config.yml`.
-Template: [`examples/config.yml`](../examples/config.yml).
+Templates: [`examples/config-java.yml`](../examples/config-java.yml),
+[`examples/config-python.yml`](../examples/config-python.yml).
 
 Only the keys the selected `mutation.approach` needs are required. `project`,
 `mutation`, and `llm` keys are always required; `system_prompts` keys are
@@ -13,11 +14,12 @@ startup with an actionable `SystemExit`, before any output is wiped.
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| `projectroot` | path | Root of the Java project under test. `output/` is created (and **wiped every run**) inside it. |
-| `filename` | path | The `.java` source file containing the method under test. Backed up to `<filename>.orig` during the run. |
-| `method` | string | Name of the method (or constructor) to mutate. |
-| `line` | int | 1-based line number of the method **name identifier** in `filename` (not annotations above it). Both `method` and `line` must match for extraction to succeed; disambiguates overloads. |
-| `runtool` | `mvn` \| `d4j` | Execution backend. `mvn` runs a plain Maven project (`mvn clean test`) and is used by the runnable `examples/` setup; `d4j` targets a Defects4J checkout (needs the `defects4j` CLI + `JDK_11`). |
+| `language` | `java` \| `python` | Source language of the file under test. **Optional; defaults to `java`** (existing configs need no change). Selects the tree-sitter grammar, the definition node types extracted, the artifact/mutant file extension, and the code-fence/prompt wording. An unknown value fails fast at startup with a `SystemExit`. |
+| `projectroot` | path | Root of the project under test. `output/` is created (and **wiped every run**) inside it. |
+| `filename` | path | The source file containing the method/function under test (`.java` or `.py`). Backed up to `<filename>.orig` during the run. |
+| `method` | string | Name of the method/constructor (Java) or function (Python) to mutate. |
+| `line` | int | 1-based line number of the method/function **name identifier** in `filename` (not annotations/decorators above it). Both `method` and `line` must match for extraction to succeed; disambiguates overloads. |
+| `runtool` | `mvn` \| `d4j` \| `pytest` | Execution backend. `mvn` runs a plain Maven project (`mvn clean test`); `d4j` targets a Defects4J checkout (needs the `defects4j` CLI + `JDK_11`); `pytest` runs pytest under multiplex's own interpreter (`sys.executable -m pytest <projectroot>`) — a mutant survives if pytest exits 0. `mvn` drives the Java `examples/` setup and `pytest` the Python one. |
 
 ## `mutation`
 
