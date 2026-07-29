@@ -53,7 +53,8 @@ uv run ./multiplex ./examples/config-python.yml   # Python
 - Python counterpart: `examples/config-python.yml` (`project.language: python`,
   `pytest` runtool) mutates `classify` in
   `examples/project/python-example/classifier.py` and evaluates each mutant with
-  `python -m pytest`. Same output layout (`output/basic-mutants/mutant_N.py` +
+  pytest (run under multiplex's own interpreter). Same output layout
+  (`output/basic-mutants/mutant_N.py` +
   `mutant_summary.csv`). Needs pytest (already provided by `uv run`) and the same
   Ollama/LLM endpoint.
 

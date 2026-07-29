@@ -221,10 +221,12 @@ run_mutants(project_root, original_file, output_path,
             method_start_byte, method_end_byte, duplicate, approach, language)
 ```
 
-- `_execute(project_root) -> bool`: runs `python -m pytest -q <project_root>`
-  (argv list, no shell); True iff pytest exits 0 (all tests pass → mutant
-  survived), False otherwise (mutant killed, incl. collection/syntax errors).
-  Missing `python` raises a `SystemExit`.
+- `_execute(project_root) -> bool`: runs `sys.executable -m pytest -q
+  <project_root>` (argv list, no shell) — pytest runs under multiplex's own
+  interpreter, not a `python` resolved from PATH. True iff pytest exits 0 (all
+  tests pass → mutant survived), False otherwise (mutant killed, incl.
+  collection/syntax errors). If pytest is not installed for that interpreter,
+  raises a `SystemExit`.
 - `run_mutants`: identical baseline → per-mutant flow as the Maven backend.
   Drives the runnable Python example (`examples/config-python.yml`). Module named
   `pytest_runner` so importing it does not shadow the installed `pytest` package.

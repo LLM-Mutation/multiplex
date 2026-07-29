@@ -89,10 +89,11 @@ Selected by `project.runtool`:
   summary flow as the Defects4J backend. Used by the runnable Java example under
   `examples/` (see DEVELOPMENT.md § Example).
 - `pytest` → `pytest_runner.py` — self-contained backend for Python projects.
-  Runs `python -m pytest -q <project_root>`; a mutant survives if pytest exits 0
-  (all tests pass). Same baseline → per-mutant flow as the Maven backend. Drives
-  the runnable Python example (`examples/config-python.yml`). Named
-  `pytest_runner` so it does not shadow the installed `pytest` package.
+  Runs `sys.executable -m pytest -q <project_root>` (pytest under multiplex's own
+  interpreter); a mutant survives if pytest exits 0 (all tests pass). Same
+  baseline → per-mutant flow as the Maven backend. Drives the runnable Python
+  example (`examples/config-python.yml`). Named `pytest_runner` so it does not
+  shadow the installed `pytest` package.
 
 ## Language registry (`multiplex/languages/`)
 

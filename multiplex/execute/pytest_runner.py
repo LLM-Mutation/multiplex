@@ -11,6 +11,7 @@ Named ``pytest_runner`` (not ``pytest``) so it does not shadow the installed
 import os
 import shutil
 import subprocess
+import sys
 from os.path import isfile, join
 from pathlib import Path
 
@@ -27,18 +28,15 @@ def _execute(project_root):
     detected and survives — and False otherwise (mutant killed, incl. collection
     or syntax errors pytest reports).
     """
-    # argv list (no shell) so a config-controlled project_root cannot inject
-    # shell commands and paths with spaces are handled correctly. `python -m
-    # pytest` uses the active interpreter's pytest.
-    command = ["python", "-m", "pytest", "-q", str(project_root)]
+    command = [sys.executable, "-m", "pytest", "-q", str(project_root)]
     try:
         result = subprocess.run(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False
         )
     except FileNotFoundError as exc:
         raise SystemExit(
-            "Python ('python') was not found on PATH. A Python interpreter with "
-            "pytest installed is required to use the 'pytest' runtool."
+            "pytest is not installed for the current interpreter "
+            f"({sys.executable}). Install pytest to use the 'pytest' runtool."
         ) from exc
 
     return result.returncode == 0
@@ -65,7 +63,7 @@ def run_mutants(
         raise IOError(
             "The original (unmutated) project did not pass pytest, so mutants "
             "cannot be evaluated against it. Run it manually to see why: "
-            f"python -m pytest {project_root}"
+            f"{sys.executable} -m pytest {project_root}"
         )
 
     for mutant_file in mutant_files:
