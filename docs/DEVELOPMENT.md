@@ -17,36 +17,45 @@ uv run ./multiplex ./path/to/config.yml                    # run the tool
   litellm's `tiktoken` dependency fails to build on 3.14.
 - Tests must run from the repo root: they reference `tests/resources/...`
   relatively.
-- Running the tool needs a reachable LLM endpoint and a target Java project;
-  `d4j` runs additionally need the `defects4j` CLI (expected under
-  `./defects4j/framework/bin`) and a `JDK_11` env var pointing at a JDK 11 home.
+- Running the tool needs a reachable LLM endpoint and a target project (Java or
+  Python, per `project.language`). `mvn` runs need Maven + a JDK; `pytest` runs
+  need pytest for the active interpreter; `d4j` runs additionally need the
+  `defects4j` CLI (expected under `./defects4j/framework/bin`) and a `JDK_11` env
+  var pointing at a JDK 11 home.
 
 CI (GitHub Actions, on push/PR to `main`): `test.yml` runs
 `uv run pytest tests` on Python 3.13; `ruff.yml` runs `uv run ruff check`.
 
 ## Example
 
-A self-contained end-to-end example lives under `examples/`:
+Self-contained end-to-end examples live under `examples/`:
 
 ```bash
-uv run multiplex ./examples/config.yml     # from the repo root
+uv run ./multiplex ./examples/config-java.yml     # Java   (from the repo root)
+uv run ./multiplex ./examples/config-python.yml   # Python
 ```
 
-- Target: `examples/project/example/` — a tiny Maven project with one method
+- Target: `examples/project/java-example/` — a tiny Maven project with one method
   (`com.example.Classifier.classify`) and JUnit tests pinning its behavior.
-- `examples/config.yml` uses the `basic` approach and the `mvn` runtool.
+- `examples/config-java.yml` uses the `basic` approach and the `mvn` runtool.
 - Prerequisites: `mvn` + a JDK 11+ on PATH (the project targets Java 11; if
   `mvn` picks up an older JDK via `JAVA_HOME` the compile fails with "release
   version 11 not supported"), and a running Ollama serving the model
   named in `llm.model` (default `gpt-oss:20b`; point it at any model you have,
   e.g. `ollama pull gpt-oss:20b`). Any LiteLLM-supported endpoint works if you
   edit `llm`.
-- Output lands in `examples/project/example/output/basic-mutants/`
+- Output lands in `examples/project/java-example/output/basic-mutants/`
   (`mutant_N.java` plus `mutant_summary.csv`). Run artifacts (`output/`,
   `*.orig`, Maven `target/`) are git-ignored.
 - The `basic` approach makes 10 LLM calls and the `mvn` backend runs the test
   suite once per compilable mutant, so a full run takes a few minutes (longer
   on a slow/local model).
+- Python counterpart: `examples/config-python.yml` (`project.language: python`,
+  `pytest` runtool) mutates `classify` in
+  `examples/project/python-example/classifier.py` and evaluates each mutant with
+  `python -m pytest`. Same output layout (`output/basic-mutants/mutant_N.py` +
+  `mutant_summary.csv`). Needs pytest (already provided by `uv run`) and the same
+  Ollama/LLM endpoint.
 
 ## Import convention (critical)
 
@@ -65,15 +74,17 @@ same process; keep the two worlds separate.
 
 ## Conventions
 
-- tree-sitter is the universal Java analysis tool (extraction, compilability,
-  equivalence, placeholder finding). Versions are pinned
-  (`tree-sitter==0.23.2`, `tree-sitter-java==0.23.5`); the code depends on that
-  API — do not bump casually.
+- tree-sitter is the universal source-analysis tool (extraction, compilability,
+  equivalence, placeholder finding); the grammar comes from the run's
+  `languages.LanguageSpec`. Versions are pinned (`tree-sitter==0.23.2`,
+  `tree-sitter-java==0.23.5`, `tree-sitter-python` 0.23.x); the code depends on
+  that API — do not bump casually.
 - Approaches communicate between their own steps via files in `output/`, not
   in-memory state; artifact names are prefixed with the approach name.
-- LLM code responses are unfenced by stripping a leading ```` ```java ````
-  fence and truncating at the next ```` ``` ```` fence
-  (`removeprefix` + `split`, see EXTENDING.md for the exact two lines).
+- LLM code responses are unfenced by stripping a leading ```` ```<lang> ````
+  fence (the tag is `language.fence`, e.g. `java`/`python`) and truncating at the
+  next ```` ``` ```` fence (`removeprefix` + `split`, see EXTENDING.md for the
+  exact two lines).
 - Mutant files are named `mutant_<N>.java` in `output/<approach>-mutants/`.
 - Status/progress reporting is `print()`-based throughout (no logging config,
   one `logging.warning` in extract_method).

@@ -1,6 +1,6 @@
 # Copilot Instructions for multiplex
 
-*multiplex* is a modular framework for prototyping LLM-based mutation testing. One run mutates a single Java method (located via tree-sitter), generates mutants with an LLM, splices each mutant back into the source file, and runs the target project's tests to see which mutants are killed.
+*multiplex* is a modular framework for prototyping LLM-based mutation testing. One run mutates a single method/function — Java or Python, set by `project.language` and located via tree-sitter — generates mutants with an LLM, splices each mutant back into the source file, and runs the target project's tests to see which mutants are killed.
 
 ## Read the docs before reading source
 
@@ -26,7 +26,8 @@ uv run ./multiplex ./path/to/config.yml                     # run the tool
 
 - **Import convention**: the tool runs as a directory (`uv run ./multiplex`), so `multiplex/` itself is on `sys.path`. Modules inside `multiplex/` import each other **without** the package prefix (`from model import Model`, `from util.io import ...`); tests import **with** it (`from multiplex.checks... import ...`). Match the style of the file being edited.
 - Adding a mutant-generation approach touches three places: a new `multiplex/approach/<name>/` package with `controller.py`, an `APPROACH_PROMPT_KEYS` entry in `multiplex/prompts.py`, and a dispatch branch in `multiplex/__main__.py`. Only the selected approach's `system_prompts` keys are required; `resolve_prompts` validates the approach and its keys up front, raising `SystemExit` before any destructive step.
-- Mutant files must be complete replacement methods written to `output/<approach>-mutants/mutant_N.java`; they are spliced verbatim over the original method's byte range.
-- tree-sitter versions are pinned (`tree-sitter==0.23.2`, `tree-sitter-java==0.23.5`); do not bump them casually — the parsing code depends on that API.
-- A runnable end-to-end example lives in `examples/` (self-contained Maven project, `basic` approach, `mvn` backend): `uv run multiplex ./examples/config.yml`.
+- Mutant files must be complete replacement methods written to `output/<approach>-mutants/mutant_N.<ext>` (`.java`/`.py`, from the `LanguageSpec`); they are spliced verbatim over the original method's byte range.
+- The source language is set by `project.language` (default `java`); a `languages.LanguageSpec` (grammar, node types, extension, fence, prompt noun) is resolved once in `__main__.py` and threaded into `extract_method`, each approach's `main`, the checks, and the execution backend. Adding a language = a `_REGISTRY` entry in `multiplex/languages/__init__.py` (+ prompts, example, and an llmorpheus query). See `docs/EXTENDING.md`.
+- tree-sitter versions are pinned (`tree-sitter==0.23.2`, `tree-sitter-java==0.23.5`, `tree-sitter-python` 0.23.x); do not bump them casually — the parsing code depends on that API.
+- Runnable end-to-end examples live in `examples/`: Java (`config-java.yml`, Maven project, `mvn` backend) and Python (`config-python.yml`, pytest project, `pytest` backend). `uv run ./multiplex ./examples/config-java.yml`.
 - Keep pure logic (parsing, splicing, checks) separate from `model.make_request` call sites — LLM calls are not mocked in tests.
