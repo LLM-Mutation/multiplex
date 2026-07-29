@@ -1,6 +1,7 @@
 """Marv output helpers."""
 
 import csv
+import difflib
 import json
 from pathlib import Path
 from uuid import uuid4
@@ -69,7 +70,7 @@ def _load_operations(output_dir: Path, approach: str, mutant_files: list[Path]) 
     return operations
 
 
-def _file_span(text: str) -> tuple[Pos, Pos]:
+def _whole_file_span(text: str) -> tuple[Pos, Pos]:
     lines = text.splitlines()
     if not lines:
         return Pos(Line=0, Char=0), Pos(Line=0, Char=0)
@@ -77,6 +78,35 @@ def _file_span(text: str) -> tuple[Pos, Pos]:
     end_line = len(lines) - 1
     end_char = len(lines[-1])
     return Pos(Line=0, Char=0), Pos(Line=end_line, Char=end_char)
+
+
+def _offset_to_pos(text: str, offset: int) -> Pos:
+    prefix = text[:offset]
+    line = prefix.count("\n")
+    char = offset - (prefix.rfind("\n") + 1)
+    return Pos(Line=line, Char=char)
+
+
+def _diff_bounds(original: str, mutant: str) -> tuple[int, int]:
+    matcher = difflib.SequenceMatcher(a=original, b=mutant, autojunk=False)
+
+    start = None
+    end = None
+    for tag, i1, i2, _j1, _j2 in matcher.get_opcodes():
+        if tag == "equal":
+            continue
+        if start is None:
+            start = i1
+        end = i2
+
+    if start is None:
+        return 0, 0
+    return start, end
+
+
+def _file_span(original: str, mutant: str) -> tuple[Pos, Pos]:
+    start_offset, end_offset = _diff_bounds(original, mutant)
+    return _offset_to_pos(original, start_offset), _offset_to_pos(original, end_offset)
 
 
 def _marv_line(line: int) -> int:
@@ -96,7 +126,7 @@ def output_marv(output_dir, approach):
         )
 
     original_method = _read_text(original_method_path)
-    start, end = _file_span(original_method)
+    region_start, region_end = _whole_file_span(original_method)
     statuses = _load_statuses(mutant_summary_path)
     mutant_files = list(mutants_dir.glob("mutant_*.java"))
     operations = _load_operations(output_dir, approach, mutant_files)
@@ -106,6 +136,7 @@ def output_marv(output_dir, approach):
         mutant_name = mutant_file_path.name
         mutant_source = _read_text(mutant_file_path)
         status = statuses.get(mutant_name, Status.PENDING)
+        start, end = _file_span(original_method, mutant_source)
 
         mutations.append(
             Mutation(
@@ -125,8 +156,8 @@ def output_marv(output_dir, approach):
             "original_method.java": [
                 MutantRegion(
                     ID=str(uuid4()),
-                    StartLine=_marv_line(0),
-                    EndLine=end.Line,
+                    StartLine=_marv_line(region_start.Line),
+                    EndLine=region_end.Line,
                     Mutations=mutations,
                 )
             ]
