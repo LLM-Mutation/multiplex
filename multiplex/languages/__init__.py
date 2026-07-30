@@ -1,21 +1,14 @@
-"""Per-language facts for the mutation pipeline.
+"""Language Specifications.
 
-A ``LanguageSpec`` carries everything the language-agnostic pipeline needs to
-work with a given source language: the tree-sitter grammar, the node types that
-denote a mutable definition, which nodes count as comments (ignored by the
-syntactic-equivalence check), the code-fence tag and prompt wording the
-approaches use, and the on-disk extension for the method/mutant artifacts.
-
-Adding a language means adding one ``LanguageSpec`` to ``_REGISTRY`` (plus a
-prompt set and an example) — see docs/EXTENDING.md § Add a language.
+Users should add new language specifications to the _REGISTRY.
 """
 
 from dataclasses import dataclass
 from pathlib import Path
 
-from tree_sitter import Language
 import tree_sitter_java as ts_java
 import tree_sitter_python as ts_python
+from tree_sitter import Language
 
 # Base name (without extension) of the method-under-test artifact every approach
 # reads from the output directory.
@@ -24,7 +17,7 @@ _METHOD_STEM = "original_method"
 
 @dataclass(frozen=True)
 class LanguageSpec:
-    """Everything the pipeline needs to know about one source language."""
+    """Language Specification Class."""
 
     name: str
     extension: str
