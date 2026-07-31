@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from uuid import uuid4
 
-from util.marv_model import MarvOutput, Mutation, MutantRegion, Pos, Status
+from util.marv_model import MarvOutput, MutantRegion, Mutation, Pos, Status
 
 
 def _read_text(file_path: Path) -> str:
@@ -46,7 +46,9 @@ def _mutant_sort_key(mutant_file_path: Path) -> tuple[int, str]:
         return 0, mutant_file_path.name
 
 
-def _load_operations(output_dir: Path, approach: str, mutant_files: list[Path]) -> dict[str, str]:
+def _load_operations(
+    output_dir: Path, approach: str, mutant_files: list[Path]
+) -> dict[str, str]:
     if approach != "hazop":
         return {}
 
@@ -55,7 +57,9 @@ def _load_operations(output_dir: Path, approach: str, mutant_files: list[Path]) 
         return {}
 
     guidewords: list[str] = []
-    with open(mutated_descriptions_path, "r", encoding="utf-8", newline="") as descriptions_file:
+    with open(
+        mutated_descriptions_path, "r", encoding="utf-8", newline=""
+    ) as descriptions_file:
         rows = csv.reader(descriptions_file)
         for row in rows:
             if len(row) < 3:
@@ -63,7 +67,9 @@ def _load_operations(output_dir: Path, approach: str, mutant_files: list[Path]) 
             guidewords.append(row[2].strip())
 
     operations: dict[str, str] = {}
-    for mutant_file_path, guideword in zip(sorted(mutant_files, key=_mutant_sort_key), guidewords):
+    for mutant_file_path, guideword in zip(
+        sorted(mutant_files, key=_mutant_sort_key), guidewords
+    ):
         operations[mutant_file_path.name] = guideword or "REPLACE_METHOD"
 
     return operations
@@ -144,8 +150,14 @@ def output_marv(output_dir, approach):
                         "ID": mutation.ID,
                         "Description": mutation.Description,
                         "Operation": mutation.Operation,
-                        "Start": {"Line": _marv_line(mutation.Start.Line), "Char": mutation.Start.Char},
-                        "End": {"Line": _marv_line(mutation.End.Line), "Char": mutation.End.Char},
+                        "Start": {
+                            "Line": _marv_line(mutation.Start.Line),
+                            "Char": mutation.Start.Char,
+                        },
+                        "End": {
+                            "Line": _marv_line(mutation.End.Line),
+                            "Char": mutation.End.Char,
+                        },
                         "Status": mutation.Status.value,
                         "Replacement": mutation.Replacement,
                         "FrameworkMutantID": mutation.FrameworkMutantID,
@@ -160,3 +172,4 @@ def output_marv(output_dir, approach):
 
     with open(marv_output_path, "w", encoding="utf-8") as output_file:
         json.dump(payload, output_file, indent=2)
+
