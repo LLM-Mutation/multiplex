@@ -1,8 +1,5 @@
-"""Resolve and validate system prompts for the selected mutation approach."""
+"""Check prompts for the selected mutation approach."""
 
-# Each approach uses only its own system prompts. Only the selected approach's
-# keys are required for a run; unrelated keys may be omitted from the config.
-# Adding an approach means adding its required prompt keys here.
 APPROACH_PROMPT_KEYS = {
     "basic": ["basic_generate_mutants"],
     "hazop": [
@@ -21,13 +18,7 @@ APPROACH_PROMPT_KEYS = {
 
 
 def resolve_prompts(config, approach):
-    """Return the system prompts required by ``approach``.
-
-    Only the keys the selected approach actually uses are read, so a config need
-    not define prompts for approaches it will not run. Raises ``SystemExit`` with
-    an actionable message if the approach is unknown or any required
-    ``system_prompts`` key is missing or empty.
-    """
+    """Return the system prompts required by ``approach``."""
     if approach not in APPROACH_PROMPT_KEYS:
         valid = ", ".join(sorted(APPROACH_PROMPT_KEYS))
         raise SystemExit(f"Invalid approach '{approach}'. Choose one of: {valid}")
