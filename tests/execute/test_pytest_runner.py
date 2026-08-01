@@ -65,6 +65,37 @@ def test_execute_reports_missing_pytest_clearly(monkeypatch):
     assert "pytest" in str(exc.value).lower()
 
 
+def _run_reporting(returncode, stdout):
+    def run(command, *args, **kwargs):
+        return types.SimpleNamespace(returncode=returncode, stdout=stdout)
+
+    return run
+
+
+def test_execute_writes_test_output_file_when_labelled(tmp_path, monkeypatch):
+    # Given an output path, approach and label, _execute persists the run's
+    # captured output to <approach>-test/<label without extension>_test.txt.
+    monkeypatch.setattr(
+        pytest_runner.subprocess, "run", _run_reporting(1, "1 failed, 2 passed\n")
+    )
+
+    assert pytest_runner._execute("proj", tmp_path, "basic", "mutant_killed.py") is False
+
+    # Same naming as the Defects4J runner: the extension is not carried over.
+    out_file = tmp_path / "basic-test" / "mutant_killed_test.txt"
+    assert out_file.exists()
+    body = out_file.read_text()
+    assert "1 failed, 2 passed" in body
+    assert "# exit code: 1" in body
+
+
+def test_execute_writes_no_output_file_without_a_label(tmp_path, monkeypatch):
+    monkeypatch.setattr(pytest_runner.subprocess, "run", _run_reporting(0, "2 passed\n"))
+
+    assert pytest_runner._execute("proj") is True
+    assert list(tmp_path.iterdir()) == []
+
+
 # --------------------------------------------------------------------------- #
 # run_mutants: full evaluation loop over a mutants directory                   #
 # --------------------------------------------------------------------------- #
@@ -127,7 +158,9 @@ def test_run_mutants_writes_summary_with_correct_classification(project, monkeyp
     # Stand in for `pytest`: the suite fails (mutant killed) only when the
     # injected source returns n + 1; every other state passes.
     monkeypatch.setattr(
-        pytest_runner, "_execute", lambda project_root: "return n + 1" not in Path(src).read_text()
+        pytest_runner,
+        "_execute",
+        lambda project_root, *args, **kwargs: "return n + 1" not in Path(src).read_text(),
     )
 
     _run(project)
@@ -142,7 +175,7 @@ def test_run_mutants_writes_summary_with_correct_classification(project, monkeyp
 
 
 def test_run_mutants_raises_when_baseline_fails(project, monkeypatch):
-    monkeypatch.setattr(pytest_runner, "_execute", lambda project_root: False)
+    monkeypatch.setattr(pytest_runner, "_execute", lambda project_root, *args, **kwargs: False)
     with pytest.raises(IOError):
         _run(project)
 
@@ -155,7 +188,7 @@ def test_run_mutants_skips_tests_for_noncompilable_mutant(project, monkeypatch):
 
     calls = {"n": 0}
 
-    def counting_execute(project_root):
+    def counting_execute(project_root, *args, **kwargs):
         calls["n"] += 1
         return True
 
