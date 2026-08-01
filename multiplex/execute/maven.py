@@ -50,7 +50,7 @@ def run_mutants(
     mutants = [["MUTANT", "EQUIVALENCE", "COMPILABLE", "SURVIVES"]]
 
     if not _execute(project_root):
-        raise IOError(
+        raise OSError(
             "The original (unmutated) project did not pass 'mvn clean test', so "
             "mutants cannot be evaluated against it. Run it manually to see why: "
             f"mvn -f {project_root} clean test"
@@ -63,13 +63,15 @@ def run_mutants(
             shutil.copy2(duplicate, original_file)
 
         path = Path(mutants_dir, mutant_file)
-        mutant_equivalent = check_mutant_equivalent(path, original_method_path, language)
-        mutant_output.append(mutant_equivalent)
+        mutant_equivalent = check_mutant_equivalent(
+            path, original_method_path, language
+        )
+        mutant_output.append(str(mutant_equivalent))
 
         rewrite_method(original_file, method_start_byte, method_end_byte, path)
 
         mutant_compiles = check_mutant_compilable(original_file, language)
-        mutant_output.append(mutant_compiles)
+        mutant_output.append(str(mutant_compiles))
 
         mutant_survives = False
         if mutant_compiles:
