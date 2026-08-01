@@ -21,7 +21,7 @@ from util.io import write_mutant_summary
 from util.rewrite_method import rewrite_method
 
 
-def _execute(project_root):
+def _execute(project_root, output_path=None, approach=None, label=None):
     """Run the project's tests with pytest.
 
     Returns True if pytest exits 0 (all tests pass) — i.e. the mutant is not
@@ -31,13 +31,23 @@ def _execute(project_root):
     command = [sys.executable, "-m", "pytest", "-q", str(project_root)]
     try:
         result = subprocess.run(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, check=False
         )
     except FileNotFoundError as exc:
         raise SystemExit(
             "pytest is not installed for the current interpreter "
             f"({sys.executable}). Install pytest to use the 'pytest' runtool."
         ) from exc
+
+    if output_path is not None and approach and label:
+        test_dir = Path(output_path, approach + "-test")
+        test_dir.mkdir(parents=True, exist_ok=True)
+        safe = str(label).replace(os.sep, "_")
+        (test_dir / f"{safe}_test.txt").write_text(
+            f"$ {' '.join(command)}\n# exit code: {result.returncode}\n\n"
+            f"{result.stdout}"
+        )
 
     return result.returncode == 0
 
@@ -59,7 +69,7 @@ def run_mutants(
 
     mutants = [["MUTANT", "EQUIVALENCE", "COMPILABLE", "SURVIVES"]]
 
-    if not _execute(project_root):
+    if not _execute(project_root, output_path, approach, "ORIGINAL"):
         raise IOError(
             "The original (unmutated) project did not pass pytest, so mutants "
             "cannot be evaluated against it. Run it manually to see why: "
@@ -83,7 +93,7 @@ def run_mutants(
 
         mutant_survives = False
         if mutant_compiles:
-            mutant_survives = _execute(project_root)
+            mutant_survives = _execute(project_root, output_path, approach, mutant_file)
         mutant_output.append(str(mutant_survives))
 
         mutants.append(mutant_output)
