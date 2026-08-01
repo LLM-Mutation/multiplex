@@ -43,7 +43,7 @@ def _execute(project_root, output_path=None, approach=None, label=None):
     if output_path is not None and approach and label:
         test_dir = Path(output_path, approach + "-test")
         test_dir.mkdir(parents=True, exist_ok=True)
-        safe = str(label).replace(os.sep, "_")
+        safe = Path(str(label).replace(os.sep, "_")).stem
         (test_dir / f"{safe}_test.txt").write_text(
             f"$ {' '.join(command)}\n# exit code: {result.returncode}\n\n"
             f"{result.stdout}"
