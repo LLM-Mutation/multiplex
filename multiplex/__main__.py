@@ -9,7 +9,7 @@ import approach.llmorpheus.controller as llmorpheus
 import approach.mutahunter.controller as mutahunter
 import approach.stpa.controller as stpa
 import yaml
-from execute import defects4j, maven, pytest_runner
+from execute import bugsinpy, defects4j, maven, pytest_runner
 from languages import get_language
 from model import Model
 from prompts import resolve_prompts
@@ -136,6 +136,22 @@ def main():
             duplicate_file_path,
             config["mutation"]["approach"],
             language,
+        )
+    elif config["project"]["runtool"] == "bugsinpy":
+        bugsinpy.run_mutants(
+            config["project"]["projectroot"],
+            config["project"]["filename"],
+            output_path,
+            method_start_byte,
+            method_end_byte,
+            duplicate_file_path,
+            config["mutation"]["approach"],
+            language,
+        )
+    else:
+        raise SystemExit(
+            f"Unknown runtool '{config['project']['runtool']}'. "
+            "Expected one of: mvn, d4j, pytest, bugsinpy."
         )
 
     reset_source_code(duplicate_file_path, config["project"]["filename"])

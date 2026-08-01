@@ -19,7 +19,7 @@ startup with an actionable `SystemExit`, before any output is wiped.
 | `filename` | path | The source file containing the method/function under test (`.java` or `.py`). Backed up to `<filename>.orig` during the run. |
 | `method` | string | Name of the method/constructor (Java) or function (Python) to mutate. |
 | `line` | int | 1-based line number of the method/function **name identifier** in `filename` (not annotations/decorators above it). Both `method` and `line` must match for extraction to succeed; disambiguates overloads. |
-| `runtool` | `mvn` \| `d4j` \| `pytest` | Execution backend. `mvn` runs a plain Maven project (`mvn clean test`); `d4j` targets a Defects4J checkout (needs the `defects4j` CLI + `JDK_11`); `pytest` runs pytest under multiplex's own interpreter (`sys.executable -m pytest <projectroot>`) — a mutant survives if pytest exits 0. `mvn` drives the Java `examples/` setup and `pytest` the Python one. |
+| `runtool` | `mvn` \| `d4j` \| `pytest` \| `bugsinpy` | Execution backend. `mvn` runs a plain Maven project (`mvn clean test`); `d4j` targets a Defects4J checkout (needs the `defects4j` CLI + `JDK_11`); `pytest` runs pytest under multiplex's own interpreter (`sys.executable -m pytest <projectroot>`) — a mutant survives if pytest exits 0; `bugsinpy` targets a [BugsInPy](https://github.com/soarsmu/BugsInPy) checkout.  `mvn` drives the Java `examples/` setup and `pytest` the Python one. |
 
 ## `mutation`
 
