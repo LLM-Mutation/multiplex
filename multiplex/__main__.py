@@ -56,10 +56,10 @@ def main():
     print(f"Method: {config['project']['method']}")
 
     if output_path.exists():
-        response = input(
-            f"Output dir ({output_path}) already exists. Would you like to delete it and continue? (y/n)"
-        )
-        # response = "y"
+        # response = input(
+        #   f"Output dir ({output_path}) already exists. Would you like to delete it and continue? (y/n)"
+        # )
+        response = "y"
 
         if response == "y":
             shutil.rmtree(output_path)
