@@ -44,7 +44,12 @@ config.yml
    → writes output/<approach>-mutants/mutant_summary.csv (Defects4J)
    │
    ▼
-6. Restore original source file from .orig backup
+6. (optional, --marv flag) util/marv.py output_marv(output_path, approach)
+   Reads original_method.java + mutant files + mutant_summary.csv
+   → writes output/marv.json (Marv mutations schema; pure Python, no marv binary)
+   │
+   ▼
+7. Restore original source file from .orig backup
 ```
 
 Key mechanism: the method's **byte offsets** captured in step 3 are reused in
@@ -118,6 +123,7 @@ Everything lands under `<projectroot>/output/` (wiped at the start of each run):
 | `<approach>-mutants/mutant_N.<ext>` | every approach's final step |
 | `<approach>-mutants/mutant_summary.csv` | maven/defects4j/pytest backends; columns `MUTANT, EQUIVALENCE, COMPILABLE, SURVIVES` |
 | `<approach>-test/<mutant>_test.txt` | defects4j backend; per-mutant test output |
+| `marv.json` | util/marv.py (`--marv` flag only); Marv-schema view of every mutant |
 
 ## LLM access (`multiplex/model.py`)
 

@@ -1,6 +1,8 @@
 import argparse
 import os
 import shutil
+import yaml
+
 from pathlib import Path
 
 import approach.basic.controller as basic
@@ -8,13 +10,15 @@ import approach.hazop.controller as hazop
 import approach.llmorpheus.controller as llmorpheus
 import approach.mutahunter.controller as mutahunter
 import approach.stpa.controller as stpa
-import yaml
+
 from execute import defects4j, maven, pytest_runner
 from languages import get_language
 from model import Model
 from prompts import resolve_prompts
 from util.extract_method import extract_method_from_file
 from util.io import reset_source_code
+from util.marv import output_marv
+
 
 
 def main():
@@ -38,12 +42,14 @@ def main():
     print(s)
     parser = argparse.ArgumentParser(description="multiplex")
     parser.add_argument("config", help="Path to config file")
+    parser.add_argument("--marv", help="Output to Marv Schema", action="store_true")
 
     args = parser.parse_args()
 
     config = None
     with open(args.config, "r") as config_file:
         config = yaml.safe_load(config_file)
+    marv = args.marv
 
     output_path = Path(config["project"]["projectroot"], "output/")
     duplicate_file_path = Path(config["project"]["filename"] + ".orig")
@@ -137,6 +143,11 @@ def main():
             config["mutation"]["approach"],
             language,
         )
+
+
+
+    if marv:
+        output_marv(output_path, approach)
 
     reset_source_code(duplicate_file_path, config["project"]["filename"])
 
