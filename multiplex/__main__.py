@@ -1,6 +1,8 @@
 import argparse
 import os
 import shutil
+import yaml
+
 from pathlib import Path
 
 import approach.basic.controller as basic
@@ -8,17 +10,19 @@ import approach.hazop.controller as hazop
 import approach.llmorpheus.controller as llmorpheus
 import approach.mutahunter.controller as mutahunter
 import approach.stpa.controller as stpa
-from util.marv import output_marv
-import yaml
-from execute import defects4j, maven
+
+from execute import defects4j, maven, pytest_runner
+from languages import get_language
 from model import Model
 from prompts import resolve_prompts
 from util.extract_method import extract_method_from_file
 from util.io import reset_source_code
+from util.marv import output_marv
+
 
 
 def main():
-    s = """
+    s = r"""
 
 # # # # # # # # # # # # # # # # # # # # # # # # 
 #                  _ _   _       _            #
@@ -42,7 +46,9 @@ def main():
 
     args = parser.parse_args()
 
-    config = yaml.safe_load(open(args.config))
+    config = None
+    with open(args.config, "r") as config_file:
+        config = yaml.safe_load(config_file)
     marv = args.marv
 
     output_path = Path(config["project"]["projectroot"], "output/")
@@ -50,14 +56,16 @@ def main():
 
     approach = config["mutation"]["approach"]
     prompts = resolve_prompts(config, approach)
+    language = get_language(config["project"].get("language"))
 
     print(f"File: {config['project']['filename']}")
     print(f"Method: {config['project']['method']}")
 
     if output_path.exists():
         response = input(
-            f"Output dir ({output_path}) already exists. Would you like to delete it and continue? (y/n): "
+            f"Output dir ({output_path}) already exists. Would you like to delete it and continue? (y/n)"
         )
+        # response = "y"
 
         if response == "y":
             shutil.rmtree(output_path)
@@ -75,6 +83,7 @@ def main():
         config["project"]["method"],
         output_path,
         config["project"]["line"],
+        language,
     )
     if method_span is None:
         raise SystemExit(
@@ -91,15 +100,15 @@ def main():
     )
 
     if approach == "stpa":
-        stpa.main(model, output_path, prompts)
+        stpa.main(model, output_path, prompts, language)
     elif approach == "hazop":
-        hazop.main(model, output_path, prompts)
+        hazop.main(model, output_path, prompts, language)
     elif approach == "basic":
-        basic.main(model, output_path, prompts)
+        basic.main(model, output_path, prompts, language)
     elif approach == "mutahunter":
-        mutahunter.main(model, output_path, prompts)
+        mutahunter.main(model, output_path, prompts, language)
     elif approach == "llmorpheus":
-        llmorpheus.main(model, output_path, prompts)
+        llmorpheus.main(model, output_path, prompts, language)
 
     if config["project"]["runtool"] == "mvn":
         maven.run_mutants(
@@ -110,6 +119,7 @@ def main():
             method_end_byte,
             duplicate_file_path,
             config["mutation"]["approach"],
+            language,
         )
     elif config["project"]["runtool"] == "d4j":
         defects4j.run_mutants(
@@ -120,7 +130,21 @@ def main():
             method_end_byte,
             duplicate_file_path,
             config["mutation"]["approach"],
+            language,
         )
+    elif config["project"]["runtool"] == "pytest":
+        pytest_runner.run_mutants(
+            config["project"]["projectroot"],
+            config["project"]["filename"],
+            output_path,
+            method_start_byte,
+            method_end_byte,
+            duplicate_file_path,
+            config["mutation"]["approach"],
+            language,
+        )
+
+
 
     if marv:
         output_marv(output_path, approach)

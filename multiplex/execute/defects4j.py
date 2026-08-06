@@ -65,11 +65,12 @@ def run_mutants(
         method_end_byte,
         duplicate,
         approach,
+        language,
 ):
     """Execute all mutants using Defects4J build."""
     mutants_dir = Path(output_path, approach + "-mutants")
     mutant_files = [f for f in os.listdir(mutants_dir) if isfile(join(mutants_dir, f))]
-    original_method_path = Path(output_path, "original_method.java")
+    original_method_path = language.original_method_path(output_path)
 
     mutants = []
     header = ["MUTANT", "EQUIVALENCE", "COMPILABLE", "SURVIVES"]
@@ -91,12 +92,12 @@ def run_mutants(
             shutil.copy2(duplicate, original_file)
 
         path = Path(mutants_dir, mutant_file)
-        mutant_equivalent = check_mutant_equivalent(path, original_method_path)
+        mutant_equivalent = check_mutant_equivalent(path, original_method_path, language)
         mutant_output.append(mutant_equivalent)
 
         rewrite_method(original_file, method_start_byte, method_end_byte, path)
 
-        mutant_compiles = check_mutant_compilable(original_file)
+        mutant_compiles = check_mutant_compilable(original_file, language)
         mutant_output.append(mutant_compiles)
 
         mutant_survives = False

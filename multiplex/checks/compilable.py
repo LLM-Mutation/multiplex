@@ -1,5 +1,4 @@
-from tree_sitter import Language, Node, Parser
-import tree_sitter_java as ts_java
+from tree_sitter import Node, Parser
 
 
 def tree_has_for_errors(node: Node):
@@ -19,10 +18,9 @@ def _read_file(fn):
     return bytes(src.encode("utf-8"))
 
 
-def check_mutant_compilable(filename):
-    """Check if Java file contains compilation errors"""
-    language = Language(ts_java.language())
-    parser = Parser(language)
+def check_mutant_compilable(filename, language):
+    """Check if the source file contains parse (syntax) errors."""
+    parser = Parser(language.ts_language)
     tree = parser.parse(_read_file(filename), encoding="utf8")
 
     return not tree_has_for_errors(tree.root_node)

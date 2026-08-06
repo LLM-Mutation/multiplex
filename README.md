@@ -69,15 +69,16 @@ Once configured and modules are set up, users can run *multiplex* using the foll
 uv run /path/to/multiplex ./path/to/config.yml
 ```
 
-#### Try the bundled example
-A self-contained example (a small Maven project mutated with the `basic`
-approach) is included. With `mvn` + a JDK on your `PATH` and a running Ollama
-(`ollama pull gpt-oss:20b`, or edit `llm.model` in the config), run from the
-repo root:
+#### Try the bundled examples
+Self-contained examples are included for both supported languages, each mutating
+a small project with the `basic` approach. With a running Ollama
+(`ollama pull gpt-oss:20b`, or edit `llm.model` in the config), run from the repo
+root:
 ```bash
-uv run multiplex ./examples/config.yml
+uv run ./multiplex ./examples/config-java.yml     # Java  (needs mvn + a JDK on PATH)
+uv run ./multiplex ./examples/config-python.yml   # Python (uses pytest via uv run)
 ```
-Results are written to `examples/project/example/output/basic-mutants/`
+Results are written to the project's `output/<approach>-mutants/`
 (`mutant_summary.csv`). See [`examples/README.md`](examples/README.md) for
 details.
 
@@ -101,7 +102,7 @@ uv run multiplex --marv ./examples/config.yml
 Marv can then read the generated `marv.json` from the project output folder.
 
 ## 🧩 Existing Modules
-*multiplex* currently includes five mutant generation modules and two execution and evaluation modules:
+*multiplex* currently includes five mutant generation modules and three execution and evaluation modules:
 
 **Mutant Generation Modules:**
 - HAZOP
@@ -113,6 +114,12 @@ Marv can then read the generated `marv.json` from the project output folder.
 **Execution and Evaluation Modules**
 - Maven
 - Defects4J (enables users to target specific bugs in the [Defects4J](https://github.com/rjust/defects4j) dataset)
+- Pytest (for Python projects)
+
+**Languages:** Java (default) and Python, selected per run with `project.language`
+in the config. All five generation modules and the equivalence/compilable checks
+are language-aware. See [`docs/EXTENDING.md`](docs/EXTENDING.md) § Add a language
+for how to add another.
 
 ## 🏗️ Adding Modules
 
