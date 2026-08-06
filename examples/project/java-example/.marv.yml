@@ -1,0 +1,10 @@
+marv:
+    port: 8080
+    output:
+        path: .marv
+        merge: false
+    review-dir: .marv/reviews
+generic:
+    framework: "multiplex"
+    marv-json: "output/marv.json"
+    src-dir: "output"
