@@ -69,7 +69,7 @@ Once configured and modules are set up, users can run *multiplex* using the foll
 uv run /path/to/multiplex ./path/to/config.yml
 ```
 
-#### Try the bundled examples
+#### Try the included examples
 Self-contained examples are included for both supported languages, each mutating
 a small project with the `basic` approach. With a running Ollama
 (`ollama pull gpt-oss:20b`, or edit `llm.model` in the config), run from the repo
@@ -91,6 +91,26 @@ go install github.com/SecretSheppy/marv@latest
 export PATH="$HOME/go/bin:$PATH"
 marv --version
 ```
+Inside the project, run 
+
+```bash
+marv init -f generic
+```
+
+and update the .marv.yml file to the following:
+
+```yaml
+marv:
+    port: 8080
+    output:
+        path: .marv
+        merge: false
+    review-dir: .marv/reviews
+generic:
+    framework: "multiplex"
+    marv-json: "output/marv.json"
+    src-dir: "output"
+```
 
 Then run `multiplex` with the `--marv` flag to generate `output/marv.json`
 alongside the usual mutant files and summary:
@@ -99,7 +119,8 @@ alongside the usual mutant files and summary:
 uv run multiplex --marv ./examples/config.yml
 ```
 
-Marv can then read the generated `marv.json` from the project output folder.
+Marv can then read the generated `marv.json` from the project output folder by running the `marv` command.
+
 
 ## 🧩 Existing Modules
 *multiplex* currently includes five mutant generation modules and three execution and evaluation modules:
