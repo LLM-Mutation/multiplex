@@ -3,22 +3,20 @@ import os
 from litellm import completion
 
 
-
 class Model:
-
     def __init__(self, model=None, endpoint=None, api_key_var=None):
         self.model = model
         self.endpoint = endpoint
-        if api_key_var is not None and api_key_var != '':
+        if api_key_var is not None and api_key_var != "":
             self.api_key = os.environ[api_key_var]
 
-            if "azure" in endpoint:
+            if "azure" in str(endpoint):
                 os.environ["AZURE_AI_API_BASE"] = endpoint
                 os.environ["AZURE_AI_API_KEY"] = os.environ[api_key_var]
-
+        if "ollama" in self.model:
+            os.environ["OLLAMA_API_BASE"] = self.endpoint
 
         print("Model:", self.model)
-
 
     def current_model(self):
         """Return current model"""
