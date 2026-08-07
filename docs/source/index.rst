@@ -56,18 +56,4 @@ If you are specifically interested in Hazard Analysis approaches for guiding LLM
    existing-modules
    configuration
 
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: Extending
 
-   adding-language
-   adding-mutant-generation
-   adding-execution-and-evaluation
-
-.. toctree:: 
-   :hidden:
-   :maxdepth: 2
-   :caption: Development
-
-   architecture
