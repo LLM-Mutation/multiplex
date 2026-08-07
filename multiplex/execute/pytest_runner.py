@@ -1,9 +1,5 @@
 """Pytest execution backend.
 
-Mirrors ``execute/maven.py``: baseline the original (unmutated) project, then per
-mutant restore the source, run the equivalence/compilable checks, splice the
-mutant into the source, and run the project's tests to decide survived/killed.
-
 Named ``pytest_runner`` (not ``pytest``) so it does not shadow the installed
 ``pytest`` package on import.
 """
@@ -31,8 +27,11 @@ def _execute(project_root, output_path=None, approach=None, label=None):
     command = [sys.executable, "-m", "pytest", "-q", str(project_root)]
     try:
         result = subprocess.run(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            text=True, check=False
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=False,
         )
     except FileNotFoundError as exc:
         raise SystemExit(
@@ -70,7 +69,7 @@ def run_mutants(
     mutants = [["MUTANT", "EQUIVALENCE", "COMPILABLE", "SURVIVES"]]
 
     if not _execute(project_root, output_path, approach, "ORIGINAL"):
-        raise IOError(
+        raise OSError(
             "The original (unmutated) project did not pass pytest, so mutants "
             "cannot be evaluated against it. Run it manually to see why: "
             f"{sys.executable} -m pytest {project_root}"
@@ -83,7 +82,9 @@ def run_mutants(
             shutil.copy2(duplicate, original_file)
 
         path = Path(mutants_dir, mutant_file)
-        mutant_equivalent = check_mutant_equivalent(path, original_method_path, language)
+        mutant_equivalent = check_mutant_equivalent(
+            path, original_method_path, language
+        )
         mutant_output.append(mutant_equivalent)
 
         rewrite_method(original_file, method_start_byte, method_end_byte, path)
