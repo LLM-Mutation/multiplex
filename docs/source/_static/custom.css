@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Read the Docs (sphinx_rtd_theme) Custom Theme Overrides
+   ========================================================================== */
+
+:root {
+    --accent-green: #3FD55C;
+    --accent-green-hover: #35b84f;
+    --bg-dark: #1E242B;
+    --bg-hover: #252B31;
+    --text-light: #F0F4F8;
+}
+
+/* --------------------------------------------------------------------------
+   Navigation Sidebar & Top Bar Backgrounds
+   -------------------------------------------------------------------------- */
+
+.wy-nav-side,
+.wy-nav-top {
+    background: var(--bg-dark);
+}
+
+/* Search Box Focus Ring */
+.wy-side-nav-search input[type="text"]:focus {
+    border-color: var(--accent-green);
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar Menu Styles
+   -------------------------------------------------------------------------- */
+
+/* Default Sidebar Item Hover */
+.wy-menu-vertical a:hover {
+    background-color: var(--bg-hover);
+    color: #ffffff;
+}
+
+/* Active / Expanded Section Container & Header ("Included Modules") */
+.wy-menu-vertical li.current > a,
+.wy-menu-vertical li.on > a {
+    background: var(--bg-hover);
+    color: #ffffff !important;
+    border-right: 4px solid var(--accent-green);
+
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+.wy-menu-vertical li.current > a:hover,
+.wy-menu-vertical li.on > a:hover {
+    background: var(--bg-hover);
+    color: #ffffff !important;
+}
+
+/* Expand / Collapse Icon for Active Section */
+.wy-menu-vertical li.current > a span.toctree-expand,
+.wy-menu-vertical li.on > a span.toctree-expand {
+    color: var(--accent-green) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Main Content Area Links & Buttons
+   -------------------------------------------------------------------------- */
+
+/* Inline Links */
+.rst-content a,
+.rst-content a:visited {
+    color: var(--accent-green);
+}
+
+.rst-content a:hover {
+    color: var(--accent-green-hover);
+}
+
+/* Navigation Buttons */
+.btn-neutral {
+    background-color: var(--bg-hover) !important;
+    color: #ffffff !important;
+}
+
+.btn-neutral:hover {
+    background-color: var(--accent-green) !important;
+    color: var(--bg-dark) !important;
+}
