@@ -8,16 +8,40 @@ Welcome to *multiplex*
 
 A tool for prototyping and comparing LLM-based mutation testing techniques.
 
-*__multiplex__* has a modular design to enable researchers to build, design and
- test LLM-based Mutation testing approaches in an easy to use framework.
+*multiplex* has a modular design to enable researchers to build, design and test LLM-based Mutation testing approaches in an easy to use framework.
 
 Multiplex is currently designed to enable mutation at the method level, but
 prompting and further modularisation could support other context levels. 
 Fork this project and add your own modules.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+Questions and Community
+-----------------------
+Have a question or found a bug? We’d love to hear from you. Please open an issue in the **Issue Tracker** and we'll get back to you!
+
+Citing this tool
+----------------------
+If you use this tool in your work or research, please cite as follows:
+
+.. code-block:: latex
+
+    @inproceedings{Maton2026a,
+      author    = {Maton, Megan and Kapfhammer, Gregory M. and McMinn, Phil},
+      title     = {multiplex: A Modular LLM-based Mutation Framework},
+      booktitle = {Proceedings of the International Conference on Automated Software Engineering (ASE) - Tools and Datasets Track},
+      year      = {2026},
+    }
+
+If you are specifically interested in Hazard Analysis approaches for guiding LLM-based mutant generation, please consider reading (and if relevant, citing):
+
+.. code-block:: latex
+
+    @inproceedings{Maton2026,
+      author    = "Maton, Megan and Kapfhammer, Gregory M. and McMinn, Phil",
+      title     = "Empirically Comparing Hazard-Guided LLM Mutation Techniques with Existing LLM- and
+                   Rule-Based Approaches",
+      booktitle = "International Conference on Evaluation and Assessment in Software Engineering (EASE)",
+      year      = "2026"
+    }
 
 .. toctree::
    :hidden:
@@ -25,7 +49,25 @@ Fork this project and add your own modules.
 
 .. toctree::
    :hidden:
-   :maxdepth: 1
+   :maxdepth: 3
    :caption: Introduction
 
    getting-started
+   existing-modules
+   configuration
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Extending
+
+   adding-language
+   adding-mutant-generation
+   adding-execution-and-evaluation
+
+.. toctree:: 
+   :hidden:
+   :maxdepth: 2
+   :caption: Development
+
+   architecture
