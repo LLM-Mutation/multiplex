@@ -12,7 +12,9 @@
 
  Multiplex is currently designed to enable mutation at the method level, but
  prompting and further modularisation could support other context levels. 
-    Fork this project and add your own modules. 
+ Fork this project and add your own modules. 
+
+Full documentation is available at [https://multiplex.readthedocs.io/](https://multiplex.readthedocs.io/en/latest/)
 
 ## Getting Started
 ### ✅ Requirements
