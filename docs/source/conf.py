@@ -24,3 +24,12 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+html_logo = "_static/images/logo.png"
+html_favicon = "_static/images/favicon.png"
+
+html_theme_options = {
+    "style_nav_header_background": "#1E242B",
+}
+html_css_files = [
+    "custom.css",
+]
