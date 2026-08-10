@@ -5,7 +5,8 @@ To add compatability for a programming language in *multiplex*, you must create 
 
 The language should be added to the ``_REGISTRY`` as shown below:
 
-.. code-block:: Python
+.. code-block:: python
+
    _REGISTRY = {
     "java": LanguageSpec(
         name="java",
