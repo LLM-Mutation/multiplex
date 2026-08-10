@@ -8,4 +8,19 @@ Users can copy the ``basic`` example to get started and then build their own app
 Each approach has a ``controller.py`` file that is called by ``multiplex/__main__.py``.
 Currently users must add their approach call to ``__main__.py`` following the template of the existing approaches. 
 
+.. code-block:: Python
+
+   """Controller for Basic prompt approach."""
+
+   from approach.basic.code_generator import generate_code
+
+
+   def main(model, output_dir, prompts, language):
+       """Controller for Basic prompt approach"""
+
+       generate_code(model, output_dir, prompts["basic_generate_mutants"], language)
+
+
+   def __main__(model, output_dir, prompts, language):
+       main(model, output_dir, prompts, language) 
 
