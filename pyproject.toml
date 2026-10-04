@@ -3,7 +3,7 @@ name = "multiplex"
 version = "0.1.0"
 description = "⚠️ A Modular LLM-based Mutation Tool."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "==3.13.*"
 dependencies = [
     "litellm>=1.84.1",
     "openai>=1.104.2",
