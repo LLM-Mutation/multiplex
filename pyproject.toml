@@ -5,7 +5,7 @@ description = "⚠️ A Modular LLM-based Mutation Tool."
 readme = "README.md"
 requires-python = "==3.13.*"
 dependencies = [
-    "litellm>=1.100.4",
+    "litellm>=1.109.1",
     "openai>=1.104.2",
     "pyyaml>=6.0.2",
     "tree-sitter==0.23.2",
@@ -15,7 +15,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pylint>=3.3.7",
+    "pylint>=4.0.9",
     "pytest>=9.0.3",
     "ruff>=0.11.12",
     "sphinx>=9.1.0",
