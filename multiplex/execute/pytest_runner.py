@@ -87,7 +87,9 @@ def run_mutants(
         )
         mutant_output.append(mutant_equivalent)
 
-        rewrite_method(original_file, method_start_byte, method_end_byte, path)
+        rewrite_method(
+            original_file, method_start_byte, method_end_byte, path, language
+        )
 
         mutant_compiles = check_mutant_compilable(original_file, language)
         mutant_output.append(mutant_compiles)
