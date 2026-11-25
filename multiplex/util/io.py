@@ -43,11 +43,10 @@ def read_ucas(input_file_path):
 
 def read_hazop_mutations(input_file_path):
     """Read Hazop Mutated Descriptions from file."""
-    with open(input_file_path, "r") as f:
-        lines = f.readlines()
-        lines_count = len(lines)
-    mutated_descriptions = [line.split(",")[3] for line in lines]
-    return mutated_descriptions, lines_count
+    with open(input_file_path, "r", encoding="utf-8", newline="") as f:
+        rows = list(csv.reader(f))
+    mutated_descriptions = [row[3] for row in rows]
+    return mutated_descriptions, len(rows)
 
 
 def reset_source_code(duplicate_file_path, filename):
