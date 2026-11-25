@@ -1,5 +1,7 @@
 """HAZOP deviations must survive the line formats that LLMs reply with."""
 
+import time
+
 import pytest
 
 from approach.hazop.description_mutator import mutate_descriptions, parse_deviation
@@ -38,6 +40,16 @@ def test_longer_guidewords():
 @pytest.mark.parametrize("line", ["Here are the rules:", "```csv", "1, a, b, c", "1, a, REVERSE", "1, a, REVERSE, "])
 def test_unusable_lines(line):
     assert parse_deviation(line) is None
+
+
+def test_trailing_comma_is_dropped():
+    assert parse_deviation('"1, a, NO, not a",') == ["1", "a", "NO", "not a"]
+
+
+def test_long_unusable_line_is_parsed_quickly():
+    start = time.perf_counter()
+    assert parse_deviation("9\ta," + " ," * 50_000) is None
+    assert time.perf_counter() - start < 1
 
 
 class FakeModel:

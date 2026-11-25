@@ -6,11 +6,11 @@ from pathlib import Path
 from util.io import read_input_to_str, write_to_file
 
 
-DEVIATION = re.compile(
-    r'^["\s]*(?P<number>\d+)[."\s]*[,\s]\s*(?P<original>.+?)\s*(?:,\s*(?:"")?\s*)+"?\s*'
-    r'(?P<guideword>NO|NOT|NONE|MORE|MORE OF|HIGHER|LESS|LESS OF|LOWER|AS WELL AS|MORE THAN|PART OF|REVERSE'
-    r'|OTHER THAN|OTHER)["\s]*,[\s,]*(?P<changed>.+?)\s*$'
-)
+GUIDEWORDS = {
+    "NO", "NOT", "NONE", "MORE", "MORE OF", "HIGHER", "LESS", "LESS OF", "LOWER", "AS WELL AS", "MORE THAN",
+    "PART OF", "REVERSE", "OTHER THAN", "OTHER",
+}
+NUMBER = re.compile(r'["\s]*(\d+)\.?"?(?=[,\s])')
 
 
 def _unquote(text):
@@ -22,13 +22,22 @@ def _unquote(text):
 
 def parse_deviation(line):
     """[number, original_rule, guideword, changed_rule], or None if the line has no such parts."""
-    match = DEVIATION.match(line)
-    if not match:
+    number = NUMBER.match(line)
+    if not number:
         return None
-    changed = _unquote(match["changed"])
-    if not changed:
-        return None
-    return [match["number"], _unquote(match["original"]), match["guideword"], changed]
+
+    fields = line[number.end():].split(",")
+    for i, field in enumerate(fields):
+        if field.strip(' \t\r"') not in GUIDEWORDS:
+            continue
+        before = fields[:i]
+        while before and not before[-1].strip(' \t"'):
+            before.pop()
+        original = _unquote(",".join(before).lstrip(", \t"))
+        changed = _unquote(",".join(fields[i + 1:]).strip(", \t\r\n"))
+        if original and changed:
+            return [number[1], original, field.strip(' \t\r"'), changed]
+    return None
 
 
 def mutate_descriptions(model, output_dir, system_prompt):
